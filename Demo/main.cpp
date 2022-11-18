@@ -3,6 +3,60 @@
 #include <Dragonfly/detail/vao.h>	 //will be replaced
 #include <SDL/SDL_mixer.h>
 
+void BasicSound(glm::vec2 pos, int len, int FS, float buff[]) {
+	float freq = 432;
+	//freq = pos.length();
+
+
+	for (int i = 0; i < len; ++i)
+	{
+		float fval = sinf(2 * (float)M_PI * freq / FS * i) / 4;
+		buff[2 * i] = fval * i / len;
+		buff[2 * i + 1] = fval * i / len;
+	}
+}
+
+float Length2(glm::vec2 vec) {
+	return  vec.x * vec.x + vec.y * vec.y;
+}
+
+glm::vec2 Mul(glm::vec2 vec) {
+	return glm::vec2(vec.x * vec.x - vec.y * vec.y, vec.x * vec.y + vec.y * vec.x);
+}
+
+void FillFractal(glm::vec2 pos, int freq, int len, int FS, float buff[])
+{
+	glm::vec2 z = pos;
+	glm::vec2 c = pos;
+	int i = 0, max_iterations = 2000;
+
+	while (Length2(z) <= 2 * 2 && i < max_iterations && i < len) {
+		float length = Length2(z);
+
+		float fval = sinf(2 * (float)M_PI * freq / FS * i) / 4;
+		buff[2 * i] = fval * length;
+		buff[2 * i + 1] = fval * length;
+
+		z = Mul(z) + c;
+
+		//std::cout << "iteration: " << i << ", length:  " << length << ", z={" << z.x << ";" << z.y << "}" << std::endl;
+
+
+		i++;
+	}
+
+	if (i != len && i != 0) {
+		int repeats = len / i - 1;
+		int original_iterations = i;
+		int j = 0;
+		for (; i < len; i++) {
+			buff[2 * i] = buff[2 * j];
+			buff[2 * i + 1] = buff[2 * j + 1];
+			j = j % original_iterations + 1;
+		}
+	}
+}
+
 int main(int argc, char* args[])
 {
 	df::Sample sam("Dragonfly Demo", 800, 800, df::Sample::FLAGS::DEFAULT);
@@ -33,6 +87,9 @@ int main(int argc, char* args[])
 	glm::vec2 lastClickPos{0,0};
 	float zoomValue = 1.0f;
 
+	//Sound variables
+	int freq = 44100;
+
 	//Graphic variables
 	float inside_color[3] = { 0.9,0.5,0.3 };
 	float outside_color[3] = { 0.9,0.5,0.3 };
@@ -56,6 +113,43 @@ int main(int argc, char* args[])
 				//moveSpeed_ /= 1.05f;
 				//moveSpeed_ = 1 / zoomValue_;
 				return true;
+			}
+			else return false;
+		}, 6);
+
+	sam.AddMouseDown([&](SDL_MouseButtonEvent mouse) 
+		{ 
+			float x = 0, y = 0;
+			glm::vec3 pos = cam.GetEye();
+			glm::vec2 resolution = cam.GetSize();
+
+			if (mouse.type == SDL_MOUSEBUTTONDOWN) {
+				switch (mouse.button) {
+				case SDL_BUTTON_LEFT:
+					x = (pos.x + (mouse.x / resolution.x - 0.5) * 2) / zoomValue / zoomValue;
+					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2) / zoomValue / zoomValue;
+					lastClickPos = glm::vec2(x, y);
+
+					if (-1 == Mix_OpenAudio(freq, AUDIO_F32, 2, 512))
+					{
+						return true;
+					}
+
+					Mix_Chunk* chunk = new Mix_Chunk;
+					chunk->alen = 4 * 2 * freq;
+					chunk->abuf = new Uint8[chunk->alen];
+					chunk->allocated = 0;
+					chunk->volume = 127;
+
+					//BasicSound(glm::vec2(2, 3), freq, freq, (float*)chunk->abuf);
+					FillFractal(glm::vec2(x, y), 432, freq, freq, (float*)chunk->abuf);
+
+					Mix_PlayChannel(-1, chunk, 0);
+
+					//Mix_FreeChunk(chunk);
+
+					return true;
+				}
 			}
 			else return false;
 		}, 6);
