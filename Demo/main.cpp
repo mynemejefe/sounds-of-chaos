@@ -28,7 +28,36 @@ int main(int argc, char* args[])
 	int w = df::Backbuffer.getWidth(), h = df::Backbuffer.getHeight();
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
+	//General variables
+	glm::vec2 lastClickPos{0,0};
+	float zoomValue = 1.0f;
+
+	//Graphic variables
+	float inside_color[3] = { 0.9,0.5,0.3 };
+	float outside_color[3] = { 0.9,0.5,0.3 };
+	float background_dim = 1;
+	int max_iterations = 5000;
+	float fractal_complexity = 1;
+
 	sam.AddResize([&](int w, int h) {frameBuff = frameBuff.MakeResized(w, h); });
+	sam.AddMouseWheel([&](SDL_MouseWheelEvent wheel)
+		{
+			if (wheel.y == 1) {
+				zoomValue *= 1.05;
+				//ChangeSpeed(1.05f);
+				//moveSpeed_ *= 1.05f;
+				//moveSpeed_ = 1 / zoomValue_;
+				return true;
+			}
+			else if (wheel.y == -1) {
+				zoomValue /= 1.05;
+				//ChangeSpeed(1/1.05f);
+				//moveSpeed_ /= 1.05f;
+				//moveSpeed_ = 1 / zoomValue_;
+				return true;
+			}
+			else return false;
+		}, 6);
 	
 	GL_CHECK; //extra opengl error checking in GPU Debug build configuration
 
@@ -37,7 +66,13 @@ int main(int argc, char* args[])
 			cam.Update();
 
 			frameBuff << df::Clear() << program
-				<< "x_offset" << cam.GetEye().x << "y_offset" << cam.GetEye().y;
+				<< "x_offset" << cam.GetEye().x << "y_offset" << cam.GetEye().y
+				<< "zoom_value" << zoomValue
+				<< "fractal_inside_col" << glm::vec3(inside_color[0], inside_color[1], inside_color[2])
+				<< "fractal_outside_col" << glm::vec3(outside_color[0], outside_color[1], outside_color[2])
+				<< "background_dim" << background_dim
+				<< "max_iter" << max_iterations
+				<< "fractal_complexity" << fractal_complexity;
 			program << demoVao;	//Rendering: Ensures that both the vao and program is attached
 
 			df::Backbuffer << df::Clear() << postprocess << "texFrame" << frameBuff.get<glm::u8vec3>();
