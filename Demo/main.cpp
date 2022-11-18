@@ -64,6 +64,21 @@ int main(int argc, char* args[])
 	sam.Run([&](float deltaTime) //delta time in ms
 		{
 			cam.Update();
+			cam.RenderUI();
+			
+			ImGui::SetNextWindowSize({ 600,400 }, ImGuiCond_Always);
+			if (ImGui::Begin("Fractal editor"))
+			{
+				ImGui::Text("Position: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
+				ImGui::Text("Cursor position: (%f, %f)", lastClickPos.x, lastClickPos.y);
+				ImGui::Text("Speed: %f, Zoom level: %f", cam.GetSpeed(), zoomValue);
+				ImGui::SliderInt("Max iteration", &max_iterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */ );
+				ImGui::SliderFloat("Fractal complexity(?)", &fractal_complexity, 0.1, 1);
+				ImGui::SliderFloat("Fractal background dim", &background_dim, 0, 1);
+				ImGui::ColorEdit3("Fractal inside color", inside_color);
+				ImGui::ColorEdit3("Fractal outside color", outside_color);
+			}
+			ImGui::End();
 
 			frameBuff << df::Clear() << program
 				<< "x_offset" << cam.GetEye().x << "y_offset" << cam.GetEye().y
