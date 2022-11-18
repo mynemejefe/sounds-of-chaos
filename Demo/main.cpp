@@ -7,6 +7,8 @@ int main(int argc, char* args[])
 	df::Sample sam("Dragonfly Demo", 800, 800, df::Sample::FLAGS::DEFAULT);
 	// df::Sample simplifies OpenGL, SDL, ImGui, RenderDoc in the render loop, and handles user input via callback member functions in priority queues
 	df::Camera cam;								// Implements a camera event class with handles
+	cam.SetView(glm::vec3(0, 0, 0), glm::vec3(0,1,0), glm::vec3(0,0,1));
+	cam.SetSpeed(2.0f);
 	sam.AddHandlerClass(cam, 5);				// class callbacks will be called to change its state
 	sam.AddHandlerClass<df::ImGuiHandler>(10);	// static handle functions only
 
@@ -34,7 +36,8 @@ int main(int argc, char* args[])
 		{
 			cam.Update();
 
-			frameBuff << df::Clear() << program << "texImg" << testTex;
+			frameBuff << df::Clear() << program
+				<< "x_offset" << cam.GetEye().x << "y_offset" << cam.GetEye().y;
 			program << demoVao;	//Rendering: Ensures that both the vao and program is attached
 
 			df::Backbuffer << df::Clear() << postprocess << "texFrame" << frameBuff.get<glm::u8vec3>();
