@@ -1,6 +1,7 @@
 #include <Dragonfly/editor.h>		 //inlcludes most features
 #include <Dragonfly/detail/buffer.h> //will be replaced
 #include <Dragonfly/detail/vao.h>	 //will be replaced
+#include <SDL/SDL_mixer.h>
 
 int main(int argc, char* args[])
 {
