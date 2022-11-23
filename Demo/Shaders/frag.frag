@@ -23,7 +23,7 @@ void main()
 //	float zoom = log(1+zoom_value);
 //	float zoom = exp(zoom_value) - 1;
 
-	vec2 z = fs_in_tex.xy * zoom + vec2(x_offset,y_offset) * vec2(zoom);
+	vec2 z = fs_in_tex.xy * zoom + vec2(x_offset,y_offset);
 	vec2 c = z;
 	int iter = 0;
 

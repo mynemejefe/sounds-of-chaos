@@ -62,7 +62,7 @@ int main(int argc, char* args[])
 	df::Sample sam("Dragonfly Demo", 800, 800, df::Sample::FLAGS::DEFAULT);
 	// df::Sample simplifies OpenGL, SDL, ImGui, RenderDoc in the render loop, and handles user input via callback member functions in priority queues
 	df::Camera cam;								// Implements a camera event class with handles
-	cam.SetView(glm::vec3(0, 0, 0), glm::vec3(0,1,0), glm::vec3(0,0,1));
+	cam.SetView(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 	cam.SetSpeed(2.0f);
 	sam.AddHandlerClass(cam, 5);				// class callbacks will be called to change its state
 	sam.AddHandlerClass<df::ImGuiHandler>(10);	// static handle functions only
@@ -98,10 +98,12 @@ int main(int argc, char* args[])
 	float fractal_complexity = 1;
 
 	sam.AddResize([&](int w, int h) {frameBuff = frameBuff.MakeResized(w, h); });
+	sam.AddMouseMotion([&](SDL_MouseMotionEvent e) { return true; }, 6);
 	sam.AddMouseWheel([&](SDL_MouseWheelEvent wheel)
 		{
 			if (wheel.y == 1) {
 				zoomValue *= 1.05;
+				cam.SetSpeed(cam.GetSpeed() / 1.1);
 				//ChangeSpeed(1.05f);
 				//moveSpeed_ *= 1.05f;
 				//moveSpeed_ = 1 / zoomValue_;
@@ -109,6 +111,7 @@ int main(int argc, char* args[])
 			}
 			else if (wheel.y == -1) {
 				zoomValue /= 1.05;
+				cam.SetSpeed(cam.GetSpeed() * 1.1);
 				//ChangeSpeed(1/1.05f);
 				//moveSpeed_ /= 1.05f;
 				//moveSpeed_ = 1 / zoomValue_;
@@ -126,8 +129,8 @@ int main(int argc, char* args[])
 			if (mouse.type == SDL_MOUSEBUTTONDOWN) {
 				switch (mouse.button) {
 				case SDL_BUTTON_LEFT:
-					x = (pos.x + (mouse.x / resolution.x - 0.5) * 2) / zoomValue / zoomValue;
-					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2) / zoomValue / zoomValue;
+					x = (pos.x + (mouse.x / resolution.x - 0.5) * 2 / zoomValue / zoomValue);
+					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
 					if (-1 == Mix_OpenAudio(freq, AUDIO_F32, 2, 512))
