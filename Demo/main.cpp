@@ -41,7 +41,6 @@ void FillFractal(glm::vec2 pos, int freq, int len, int FS, float buff[])
 
 		//std::cout << "iteration: " << i << ", length:  " << length << ", z={" << z.x << ";" << z.y << "}" << std::endl;
 
-
 		i++;
 	}
 
@@ -84,15 +83,15 @@ int main(int argc, char* args[])
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
 	//General variables
-	glm::vec2 lastClickPos{0,0};
+	glm::vec2 lastClickPos{ 0,0 };
 	float zoomValue = 1.0f;
 
 	//Sound variables
 	int freq = 44100;
 
 	//Graphic variables
-	float inside_color[3] = { 0.9,0.5,0.3 };
-	float outside_color[3] = { 0.9,0.5,0.3 };
+	float inside_color[3] = { 0.9f,0.5f,0.3f };
+	float outside_color[3] = { 0.9f,0.5f,0.3f };
 	float background_dim = 1;
 	int max_iterations = 5000;
 	float fractal_complexity = 1;
@@ -119,7 +118,6 @@ int main(int argc, char* args[])
 			}
 			else return false;
 		}, 6);
-
 	sam.AddMouseDown([&](SDL_MouseButtonEvent mouse) 
 		{ 
 			float x = 0, y = 0;
@@ -172,7 +170,7 @@ int main(int argc, char* args[])
 				ImGui::Text("Speed: %f, Zoom level: %f", cam.GetSpeed(), zoomValue);
 				ImGui::SliderInt("Max iteration", &max_iterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */ );
 				ImGui::SliderFloat("Fractal complexity(?)", &fractal_complexity, 0.1, 1);
-				ImGui::SliderFloat("Fractal background dim", &background_dim, 0, 1);
+				ImGui::SliderFloat("Fractal background dim", &background_dim, 0.1, 2);
 				ImGui::ColorEdit3("Fractal inside color", inside_color);
 				ImGui::ColorEdit3("Fractal outside color", outside_color);
 			}

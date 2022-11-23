@@ -35,6 +35,6 @@ void main()
 	if (iter == max_iter) { 
 		fs_out_col = vec4(fractal_inside_col, 1);
 	} else if (iter < max_iter) {
-		fs_out_col = vec4(fractal_outside_col * vec3(outside_dim), 1);
+		fs_out_col = vec4(fractal_outside_col * outside_dim, 1);
 	}
 }
