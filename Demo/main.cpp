@@ -87,7 +87,8 @@ int main(int argc, char* args[])
 	float zoomValue = 1.0f;
 
 	//Sound variables
-	int freq = 44100;
+	int FS = 44100;
+	int freq = 440;
 
 	//Graphic variables
 	float inside_color[3] = { 0.9f,0.5f,0.3f };
@@ -131,19 +132,19 @@ int main(int argc, char* args[])
 					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
-					if (-1 == Mix_OpenAudio(freq, AUDIO_F32, 2, 512))
+					if (-1 == Mix_OpenAudio(FS, AUDIO_F32, 2, 512))
 					{
 						return true;
 					}
 
 					Mix_Chunk* chunk = new Mix_Chunk;
-					chunk->alen = 4 * 2 * freq;
+					chunk->alen = 4 * 2 * FS;
 					chunk->abuf = new Uint8[chunk->alen];
 					chunk->allocated = 0;
 					chunk->volume = 127;
 
-					//BasicSound(glm::vec2(2, 3), freq, freq, (float*)chunk->abuf);
-					FillFractal(glm::vec2(x, y), 432, freq, freq, (float*)chunk->abuf);
+					//BasicSound(glm::vec2(2, 3), FS, FS, (float*)chunk->abuf);
+					FillFractal(glm::vec2(x, y), freq, FS, FS, (float*)chunk->abuf);
 
 					Mix_PlayChannel(-1, chunk, 0);
 
@@ -168,6 +169,8 @@ int main(int argc, char* args[])
 				ImGui::Text("Position: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
 				ImGui::Text("Cursor position: (%f, %f)", lastClickPos.x, lastClickPos.y);
 				ImGui::Text("Speed: %f, Zoom level: %f", cam.GetSpeed(), zoomValue);
+				ImGui::SliderInt("Sampling signal frequency", &FS, 8000, 80000);
+				ImGui::SliderInt("Sound frequency base", &freq, 0, 1236);
 				ImGui::SliderInt("Max iteration", &max_iterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */ );
 				ImGui::SliderFloat("Fractal complexity(?)", &fractal_complexity, 0.1, 1);
 				ImGui::SliderFloat("Fractal background dim", &background_dim, 0.1, 2);
