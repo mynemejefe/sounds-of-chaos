@@ -56,6 +56,27 @@ void FillFractal(glm::vec2 pos, int freq, int len, int FS, float buff[])
 	}
 }
 
+void PlaySoundAtPos(glm::vec2 pos, int FS, int freq) 
+{
+	if (-1 == Mix_OpenAudio(FS, AUDIO_F32, 2, 512))
+	{
+		return;
+	}
+
+	Mix_Chunk* chunk = new Mix_Chunk;
+	chunk->alen = 4 * 2 * FS;
+	chunk->abuf = new Uint8[chunk->alen];
+	chunk->allocated = 0;
+	chunk->volume = 127;
+
+	//BasicSound(glm::vec2(2, 3), FS, FS, (float*)chunk->abuf);
+	FillFractal(pos, freq, FS, FS, (float*)chunk->abuf);
+
+	Mix_PlayChannel(-1, chunk, 0);
+
+	//Mix_FreeChunk(chunk);
+}
+
 int main(int argc, char* args[])
 {
 	df::Sample sam("Dragonfly Demo", 800, 800, df::Sample::FLAGS::DEFAULT);
@@ -85,6 +106,9 @@ int main(int argc, char* args[])
 	//General variables
 	glm::vec2 lastClickPos{ 0,0 };
 	float zoomValue = 1.0f;
+
+	bool isShiftHeldDown = false;
+	glm::vec2 pianoKeys[10]{ glm::vec2{0} };
 
 	//Sound variables
 	int FS = 44100;
@@ -119,8 +143,8 @@ int main(int argc, char* args[])
 			}
 			else return false;
 		}, 6);
-	sam.AddMouseDown([&](SDL_MouseButtonEvent mouse) 
-		{ 
+	sam.AddMouseDown([&](SDL_MouseButtonEvent mouse)
+		{
 			float x = 0, y = 0;
 			glm::vec3 pos = cam.GetEye();
 			glm::vec2 resolution = cam.GetSize();
@@ -132,29 +156,54 @@ int main(int argc, char* args[])
 					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
-					if (-1 == Mix_OpenAudio(FS, AUDIO_F32, 2, 512))
-					{
-						return true;
-					}
-
-					Mix_Chunk* chunk = new Mix_Chunk;
-					chunk->alen = 4 * 2 * FS;
-					chunk->abuf = new Uint8[chunk->alen];
-					chunk->allocated = 0;
-					chunk->volume = 127;
-
-					//BasicSound(glm::vec2(2, 3), FS, FS, (float*)chunk->abuf);
-					FillFractal(glm::vec2(x, y), freq, FS, FS, (float*)chunk->abuf);
-
-					Mix_PlayChannel(-1, chunk, 0);
-
-					//Mix_FreeChunk(chunk);
+					PlaySoundAtPos(lastClickPos, FS, freq);
 
 					return true;
 				}
 			}
 			else return false;
 		}, 6);
+	sam.AddKeyDown([&](SDL_KeyboardEvent kb)
+		{
+			int pianoKey = -1;
+			switch (kb.keysym.sym)
+			{
+			case SDLK_LSHIFT:	isShiftHeldDown = true; break;
+			case SDLK_0:		pianoKey = 0; break;
+			case SDLK_1:		pianoKey = 1; break;
+			case SDLK_2:		pianoKey = 2; break;
+			case SDLK_3:		pianoKey = 3; break;
+			case SDLK_4:		pianoKey = 4; break;
+			case SDLK_5:		pianoKey = 5; break;
+			case SDLK_6:		pianoKey = 6; break;
+			case SDLK_7:		pianoKey = 7; break;
+			case SDLK_8:		pianoKey = 8; break;
+			case SDLK_9:		pianoKey = 9; break;
+			}
+
+			if (pianoKey != -1)
+			{
+				/* play sound / record new sound */
+				if (isShiftHeldDown)
+				{
+					pianoKeys[pianoKey] = glm::vec2(lastClickPos.x, lastClickPos.y);
+				}
+				else if (glm::length(pianoKeys[pianoKey]) != 0)
+				{
+					PlaySoundAtPos(pianoKeys[pianoKey], FS, freq);
+				}
+			}
+
+			return true;
+		}, 5);
+	sam.AddKeyUp([&](SDL_KeyboardEvent kb) 
+		{
+			if (kb.keysym.sym == SDLK_LSHIFT)	
+			{
+				isShiftHeldDown = false;
+			}
+			return true; 
+		}, 5);
 	
 	GL_CHECK; //extra opengl error checking in GPU Debug build configuration
 
