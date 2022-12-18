@@ -11,7 +11,7 @@ glm::vec2 Mul(glm::vec2 u, glm::vec2 v) {
 	return glm::vec2(u.x * v.x - u.y * v.y, u.x * v.y + u.y * v.x);
 }
 
-void FillFractal(glm::vec2 pos, int freq, int len, int FS, float buff[])
+void FillFractal(int fractalType, glm::vec2 pos, int freq, int len, int FS, float buff[])
 {
 	glm::vec2 z = pos;
 	glm::vec2 c = pos;
@@ -24,9 +24,17 @@ void FillFractal(glm::vec2 pos, int freq, int len, int FS, float buff[])
 		buff[2 * i] = fval * length;
 		buff[2 * i + 1] = fval * length;
 
-		z = Mul(z) + c;
-
+		switch (fractalType) {
+		case 0:
 			z = Mul(z, z) + c;
+			break;
+		case 1:
+			z = Mul(Mul(z, z), z) + c;
+			break;
+		case 2:
+			z = powf(sqrtf(Length2(z)), 2) + c;
+			break;
+		}
 
 		i++;
 	}
@@ -43,7 +51,7 @@ void FillFractal(glm::vec2 pos, int freq, int len, int FS, float buff[])
 	}
 }
 
-void PlaySoundAtPos(glm::vec2 pos, int FS, int freq) 
+void PlaySoundAtPos(int fractalType, glm::vec2 pos, int FS, int freq) 
 {
 	if (-1 == Mix_OpenAudio(FS, AUDIO_F32, 2, 512))
 	{
@@ -56,8 +64,7 @@ void PlaySoundAtPos(glm::vec2 pos, int FS, int freq)
 	chunk->allocated = 0;
 	chunk->volume = 127;
 
-	//BasicSound(glm::vec2(2, 3), FS, FS, (float*)chunk->abuf);
-	FillFractal(pos, freq, FS, FS, (float*)chunk->abuf);
+	FillFractal(fractalType, pos, freq, FS, FS, (float*)chunk->abuf);
 
 	Mix_PlayChannel(-1, chunk, 0);
 
@@ -91,7 +98,11 @@ int main(int argc, char* args[])
 	glm::vec2 lastClickPos{ 0,0 };
 	float zoomValue = 1.0f;
 	bool isShiftHeldDown = false;
-	glm::vec2 pianoKeys[10]{ glm::vec2{0} };
+	struct pianoKey {
+		glm::vec2 pos{ 0 };
+		int fractalType = 0;
+	};
+	pianoKey pianoKeys[10];
 
 	//Sound variables
 	int FS = 44100;
@@ -99,6 +110,8 @@ int main(int argc, char* args[])
 
 	//Graphic variables
 	int maxIterations = 5000;
+	int fractalType = 0;
+	const char* fractalTypes[]{ "Mandelbrot set", "Multibrot set (z = z^3+c)", "Burning ship fractal" };
 	float insideColor[3] = { 0.9f,0.5f,0.3f };
 	float outsideColor[3] = { 0.9f,0.5f,0.3f };
 	float backgroundBrightness = 1;
@@ -131,7 +144,7 @@ int main(int argc, char* args[])
 					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
-					PlaySoundAtPos(lastClickPos, FS, freq);
+					PlaySoundAtPos(fractalType, lastClickPos, FS, freq);
 
 					return true;
 				}
@@ -161,11 +174,13 @@ int main(int argc, char* args[])
 				/* play sound / record new sound */
 				if (isShiftHeldDown)
 				{
-					pianoKeys[pianoKey] = glm::vec2(lastClickPos.x, lastClickPos.y);
+					pianoKeys[pianoKey].pos = glm::vec2(lastClickPos.x, lastClickPos.y);
+					pianoKeys[pianoKey].fractalType = fractalType;
 				}
-				else if (glm::length(pianoKeys[pianoKey]) != 0)
+				else if (glm::length(pianoKeys[pianoKey].pos) != 0)
 				{
-					PlaySoundAtPos(pianoKeys[pianoKey], FS, freq);
+					struct pianoKey key = pianoKeys[pianoKey];
+					PlaySoundAtPos(key.fractalType, key.pos, FS, freq);
 				}
 			}
 
@@ -196,6 +211,7 @@ int main(int argc, char* args[])
 				ImGui::SliderInt("Sampling signal frequency", &FS, 8000, 80000);
 				ImGui::SliderInt("Sound frequency base", &freq, 0, 1236);
 				ImGui::SliderInt("Max iteration", &maxIterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */ );
+				ImGui::Combo("Fractal type", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
 				ImGui::SliderFloat("Fractal background brightness", &backgroundBrightness, 0.1, 2);
 				ImGui::ColorEdit3("Fractal inside color", insideColor);
 				ImGui::ColorEdit3("Fractal outside color", outsideColor);
@@ -208,7 +224,8 @@ int main(int argc, char* args[])
 				<< "fractal_inside_col" << glm::vec3(insideColor[0], insideColor[1], insideColor[2])
 				<< "fractal_outside_col" << glm::vec3(outsideColor[0], outsideColor[1], outsideColor[2])
 				<< "background_brightness" << backgroundBrightness
-				<< "max_iter" << maxIterations;
+				<< "max_iter" << maxIterations
+				<< "fractal_type" << fractalType;
 			program << demoVao;	//Rendering: Ensures that both the vao and program is attached
 
 			df::Backbuffer << df::Clear() << postprocess << "texFrame" << frameBuff.get<glm::u8vec3>();

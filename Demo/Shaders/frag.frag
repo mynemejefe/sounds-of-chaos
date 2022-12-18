@@ -7,7 +7,7 @@ uniform vec3 fractal_inside_col;
 uniform vec3 fractal_outside_col;
 uniform float background_brightness;
 uniform int max_iter;
-uniform float fractal_complexity;
+uniform int fractal_type;
 
 layout(location = 0) in vec2 fs_in_tex;
 out vec4 fs_out_col;
@@ -21,11 +21,33 @@ void main()
 	float zoom = 1/zoom_value/zoom_value;
 
 	vec2 z = fs_in_tex.xy * zoom + vec2(x_offset,y_offset);
+	//z.y = -z.y;
 	vec2 c = z;
 	int iter = 0;
 
-	for(; length(z) <= 2 * fractal_complexity && iter < max_iter; ++iter){
-		z = mul(z,z) + c;
+	switch(fractal_type){
+		case 0:
+		{
+			for(; length(z) <= 2 && iter < max_iter; ++iter){
+				z = mul(z, z) + c;
+			}
+			break;
+		}
+		case 1:
+		{
+			for(; length(z) <= 2 && iter < max_iter; ++iter){
+				z = mul(mul(z, z),z) + c;
+			}
+			break;
+		}
+		case 2:
+		{
+			for(; length(z) <= 2 && iter < max_iter; ++iter){
+				vec2 z_abs = abs(z);
+				z = mul(z_abs,z_abs) + c;
+			}
+			break;
+		}
 	}
 
 	float outside_dim =  background_brightness * iter / 32.0f / zoom_value;
