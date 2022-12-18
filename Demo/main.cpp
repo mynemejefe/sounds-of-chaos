@@ -3,25 +3,12 @@
 #include <Dragonfly/detail/vao.h>	 //will be replaced
 #include <SDL/SDL_mixer.h>
 
-void BasicSound(glm::vec2 pos, int len, int FS, float buff[]) {
-	float freq = 432;
-	//freq = pos.length();
-
-
-	for (int i = 0; i < len; ++i)
-	{
-		float fval = sinf(2 * (float)M_PI * freq / FS * i) / 4;
-		buff[2 * i] = fval * i / len;
-		buff[2 * i + 1] = fval * i / len;
-	}
-}
-
 float Length2(glm::vec2 vec) {
 	return  vec.x * vec.x + vec.y * vec.y;
 }
 
-glm::vec2 Mul(glm::vec2 vec) {
-	return glm::vec2(vec.x * vec.x - vec.y * vec.y, vec.x * vec.y + vec.y * vec.x);
+glm::vec2 Mul(glm::vec2 u, glm::vec2 v) {
+	return glm::vec2(u.x * v.x - u.y * v.y, u.x * v.y + u.y * v.x);
 }
 
 void FillFractal(glm::vec2 pos, int freq, int len, int FS, float buff[])
@@ -39,7 +26,7 @@ void FillFractal(glm::vec2 pos, int freq, int len, int FS, float buff[])
 
 		z = Mul(z) + c;
 
-		//std::cout << "iteration: " << i << ", length:  " << length << ", z={" << z.x << ";" << z.y << "}" << std::endl;
+			z = Mul(z, z) + c;
 
 		i++;
 	}
@@ -92,9 +79,6 @@ int main(int argc, char* args[])
 
 	df::VaoArrays demoVao((GLuint)MyVAO, GL_TRIANGLE_STRIP, 4, 0u); // temporary solution that wraps an ID
 
-	df::TextureCube<> testCubemap("Assets/xpos.png", "Assets/xneg.png", "Assets/ypos.png", "Assets/yneg.png", "Assets/zpos.png", "Assets/zneg.png");
-	df::Texture2D<> testTex = testCubemap[df::X_POS]; // 2D view of a cubemap face
-
 	df::ShaderProgramEditorVF program = "MyShaderProgram";
 	program << "Shaders/vert.vert"_vert << "Shaders/frag.frag"_frag << df::LinkProgram;
 	df::ShaderProgramEditorVF postprocess = "Postprocess shader program";
@@ -106,7 +90,6 @@ int main(int argc, char* args[])
 	//General variables
 	glm::vec2 lastClickPos{ 0,0 };
 	float zoomValue = 1.0f;
-
 	bool isShiftHeldDown = false;
 	glm::vec2 pianoKeys[10]{ glm::vec2{0} };
 
@@ -115,30 +98,22 @@ int main(int argc, char* args[])
 	int freq = 440;
 
 	//Graphic variables
-	float inside_color[3] = { 0.9f,0.5f,0.3f };
-	float outside_color[3] = { 0.9f,0.5f,0.3f };
-	float background_dim = 1;
-	int max_iterations = 5000;
-	float fractal_complexity = 1;
+	int maxIterations = 5000;
+	float insideColor[3] = { 0.9f,0.5f,0.3f };
+	float outsideColor[3] = { 0.9f,0.5f,0.3f };
+	float backgroundBrightness = 1;
 
-	sam.AddResize([&](int w, int h) {frameBuff = frameBuff.MakeResized(w, h); });
 	sam.AddMouseMotion([&](SDL_MouseMotionEvent e) { return true; }, 6);
 	sam.AddMouseWheel([&](SDL_MouseWheelEvent wheel)
 		{
 			if (wheel.y == 1) {
 				zoomValue *= 1.05;
 				cam.SetSpeed(cam.GetSpeed() / 1.1);
-				//ChangeSpeed(1.05f);
-				//moveSpeed_ *= 1.05f;
-				//moveSpeed_ = 1 / zoomValue_;
 				return true;
 			}
 			else if (wheel.y == -1) {
 				zoomValue /= 1.05;
 				cam.SetSpeed(cam.GetSpeed() * 1.1);
-				//ChangeSpeed(1/1.05f);
-				//moveSpeed_ /= 1.05f;
-				//moveSpeed_ = 1 / zoomValue_;
 				return true;
 			}
 			else return false;
@@ -211,7 +186,7 @@ int main(int argc, char* args[])
 		{
 			cam.Update();
 			cam.RenderUI();
-			
+
 			ImGui::SetNextWindowSize({ 600,400 }, ImGuiCond_Always);
 			if (ImGui::Begin("Fractal editor"))
 			{
@@ -220,22 +195,20 @@ int main(int argc, char* args[])
 				ImGui::Text("Speed: %f, Zoom level: %f", cam.GetSpeed(), zoomValue);
 				ImGui::SliderInt("Sampling signal frequency", &FS, 8000, 80000);
 				ImGui::SliderInt("Sound frequency base", &freq, 0, 1236);
-				ImGui::SliderInt("Max iteration", &max_iterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */ );
-				ImGui::SliderFloat("Fractal complexity(?)", &fractal_complexity, 0.1, 1);
-				ImGui::SliderFloat("Fractal background dim", &background_dim, 0.1, 2);
-				ImGui::ColorEdit3("Fractal inside color", inside_color);
-				ImGui::ColorEdit3("Fractal outside color", outside_color);
+				ImGui::SliderInt("Max iteration", &maxIterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */ );
+				ImGui::SliderFloat("Fractal background brightness", &backgroundBrightness, 0.1, 2);
+				ImGui::ColorEdit3("Fractal inside color", insideColor);
+				ImGui::ColorEdit3("Fractal outside color", outsideColor);
 			}
 			ImGui::End();
 
 			frameBuff << df::Clear() << program
 				<< "x_offset" << cam.GetEye().x << "y_offset" << cam.GetEye().y
 				<< "zoom_value" << zoomValue
-				<< "fractal_inside_col" << glm::vec3(inside_color[0], inside_color[1], inside_color[2])
-				<< "fractal_outside_col" << glm::vec3(outside_color[0], outside_color[1], outside_color[2])
-				<< "background_dim" << background_dim
-				<< "max_iter" << max_iterations
-				<< "fractal_complexity" << fractal_complexity;
+				<< "fractal_inside_col" << glm::vec3(insideColor[0], insideColor[1], insideColor[2])
+				<< "fractal_outside_col" << glm::vec3(outsideColor[0], outsideColor[1], outsideColor[2])
+				<< "background_brightness" << backgroundBrightness
+				<< "max_iter" << maxIterations;
 			program << demoVao;	//Rendering: Ensures that both the vao and program is attached
 
 			df::Backbuffer << df::Clear() << postprocess << "texFrame" << frameBuff.get<glm::u8vec3>();
