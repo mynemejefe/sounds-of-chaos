@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="fractalsound.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +138,9 @@
     <None Include="Shaders\postprocess.frag" />
     <None Include="Shaders\postprocess.vert" />
     <None Include="Shaders\vert.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fractalsound.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,7 @@
 #include <Dragonfly/detail/buffer.h> //will be replaced
 #include <Dragonfly/detail/vao.h>	 //will be replaced
 #include <SDL/SDL_mixer.h>
+#include "fractalsound.h"
 
 float Length2(glm::vec2 vec) {
 	return  vec.x * vec.x + vec.y * vec.y;
@@ -60,14 +61,19 @@ void PlaySoundAtPos(int fractalType, glm::vec2 pos, int FS, int freq)
 
 	Mix_Chunk* chunk = new Mix_Chunk;
 	chunk->alen = 4 * 2 * FS;
-	chunk->abuf = new Uint8[chunk->alen];
+	//chunk->abuf = new Uint8[chunk->alen];
+	chunk->abuf = (Uint8*)malloc(chunk->alen * sizeof(Uint8));
 	chunk->allocated = 0;
 	chunk->volume = 127;
 
 	FillFractal(fractalType, pos, freq, FS, FS, (float*)chunk->abuf);
-
+	
 	Mix_PlayChannel(-1, chunk, 0);
 
+	Sleep(1000);
+
+	delete(chunk);
+	//SDL_free(chunk);
 	//Mix_FreeChunk(chunk);
 }
 
@@ -101,12 +107,14 @@ int main(int argc, char* args[])
 	struct pianoKey {
 		glm::vec2 pos{ 0 };
 		int fractalType = 0;
+		int freq = 440;
 	};
 	pianoKey pianoKeys[10];
 
 	//Sound variables
-	int FS = 44100;
+	const int FS = 44100;
 	int freq = 440;
+	FractalSound* fractalSound = new FractalSound(FS);
 
 	//Graphic variables
 	int maxIterations = 5000;
@@ -144,7 +152,7 @@ int main(int argc, char* args[])
 					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
-					PlaySoundAtPos(fractalType, lastClickPos, FS, freq);
+					fractalSound->PlaySoundAtPos(fractalType, lastClickPos, freq);
 
 					return true;
 				}
@@ -176,11 +184,12 @@ int main(int argc, char* args[])
 				{
 					pianoKeys[pianoKey].pos = glm::vec2(lastClickPos.x, lastClickPos.y);
 					pianoKeys[pianoKey].fractalType = fractalType;
+					pianoKeys[pianoKey].freq = freq;
 				}
 				else if (glm::length(pianoKeys[pianoKey].pos) != 0)
 				{
 					struct pianoKey key = pianoKeys[pianoKey];
-					PlaySoundAtPos(key.fractalType, key.pos, FS, freq);
+					fractalSound->PlaySoundAtPos(key.fractalType, key.pos, key.freq);
 				}
 			}
 
@@ -208,7 +217,6 @@ int main(int argc, char* args[])
 				ImGui::Text("Position: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
 				ImGui::Text("Cursor position: (%f, %f)", lastClickPos.x, lastClickPos.y);
 				ImGui::Text("Speed: %f, Zoom level: %f", cam.GetSpeed(), zoomValue);
-				ImGui::SliderInt("Sampling signal frequency", &FS, 8000, 80000);
 				ImGui::SliderInt("Sound frequency base", &freq, 0, 1236);
 				ImGui::SliderInt("Max iteration", &maxIterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */ );
 				ImGui::Combo("Fractal type", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
