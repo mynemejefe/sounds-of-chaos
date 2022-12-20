@@ -128,12 +128,12 @@ int main(int argc, char* args[])
 	sam.AddMouseWheel([&](SDL_MouseWheelEvent wheel)
 		{
 			if (wheel.y == 1) {
-				zoomValue *= 1.05;
+				zoomValue *= 1.1;
 				cam.SetSpeed(cam.GetSpeed() / 1.1);
 				return true;
 			}
 			else if (wheel.y == -1) {
-				zoomValue /= 1.05;
+				zoomValue /= 1.1;
 				cam.SetSpeed(cam.GetSpeed() * 1.1);
 				return true;
 			}
@@ -148,8 +148,8 @@ int main(int argc, char* args[])
 			if (mouse.type == SDL_MOUSEBUTTONDOWN) {
 				switch (mouse.button) {
 				case SDL_BUTTON_LEFT:
-					x = (pos.x + (mouse.x / resolution.x - 0.5) * 2 / zoomValue / zoomValue);
-					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue / zoomValue);
+					x = (pos.x + (mouse.x / resolution.x - 0.5) * 2 / zoomValue);
+					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
 					fractalSound->PlaySoundAtPos(fractalType, lastClickPos, freq);
@@ -227,7 +227,7 @@ int main(int argc, char* args[])
 			ImGui::End();
 
 			frameBuff << df::Clear() << program
-				<< "x_offset" << cam.GetEye().x << "y_offset" << cam.GetEye().y
+				<< "offset" << glm::vec2(cam.GetEye().x, cam.GetEye().y)
 				<< "zoom_value" << zoomValue
 				<< "fractal_inside_col" << glm::vec3(insideColor[0], insideColor[1], insideColor[2])
 				<< "fractal_outside_col" << glm::vec3(outsideColor[0], outsideColor[1], outsideColor[2])

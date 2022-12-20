@@ -1,7 +1,6 @@
 #version 410
 
-uniform float x_offset;
-uniform float y_offset;
+uniform vec2 offset;
 uniform float zoom_value;
 uniform vec3 fractal_inside_col;
 uniform vec3 fractal_outside_col;
@@ -18,9 +17,7 @@ vec2 mul(vec2 u, vec2 v){
 
 void main()
 {	
-	float zoom = 1/zoom_value/zoom_value;
-
-	vec2 z = fs_in_tex.xy * zoom + vec2(x_offset,y_offset);
+	vec2 z = fs_in_tex.xy / zoom_value + offset;
 	//z.y = -z.y;
 	vec2 c = z;
 	int iter = 0;
@@ -50,7 +47,7 @@ void main()
 		}
 	}
 
-	float outside_dim =  background_brightness * iter / 32.0f / zoom_value;
+	float outside_dim =  background_brightness * iter / 32.0f / sqrt(zoom_value);
 
 	if (iter == max_iter) { 
 		fs_out_col = vec4(fractal_inside_col, 1);
