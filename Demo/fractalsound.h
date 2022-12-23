@@ -16,5 +16,6 @@ private:
 	void FillFractal(int fractalType, glm::vec2 pos, int freq, float buff[]);
 	float Length2(glm::vec2 vec);
 	glm::vec2 Mul(glm::vec2 u, glm::vec2 v);
+	void Mix_FreeChunk(Mix_Chunk* chunk);
 };
 

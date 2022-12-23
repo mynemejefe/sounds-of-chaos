@@ -70,3 +70,9 @@ float FractalSound::Length2(glm::vec2 vec) {
 glm::vec2 FractalSound::Mul(glm::vec2 u, glm::vec2 v) {
 	return glm::vec2(u.x * v.x - u.y * v.y, u.x * v.y + u.y * v.x);
 }
+
+void FractalSound::Mix_FreeChunk(Mix_Chunk* chunk)
+{
+	delete(chunk->abuf);
+	delete(chunk);
+}
