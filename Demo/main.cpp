@@ -115,6 +115,7 @@ int main(int argc, char* args[])
 	//Sound variables
 	const int FS = 44100;
 	int freq = 440;
+	bool allowCloseNeighbours = true;
 	FractalSound* fractalSound = new FractalSound(FS);
 
 	//Graphic variables
@@ -153,7 +154,7 @@ int main(int argc, char* args[])
 					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
-					fractalSound->PlaySoundAtPos(fractalType, lastClickPos, freq);
+					fractalSound->PlaySoundAtPos(fractalType, lastClickPos, freq, allowCloseNeighbours);
 
 					return true;
 				}
@@ -190,7 +191,7 @@ int main(int argc, char* args[])
 				else if (glm::length(pianoKeys[pianoKey].pos) != 0)
 				{
 					struct pianoKey key = pianoKeys[pianoKey];
-					fractalSound->PlaySoundAtPos(key.fractalType, key.pos, key.freq);
+					fractalSound->PlaySoundAtPos(key.fractalType, key.pos, key.freq, true);
 				}
 			}
 
