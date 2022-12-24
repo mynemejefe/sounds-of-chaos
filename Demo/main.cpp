@@ -37,7 +37,6 @@ int main(int argc, char* args[])
 		int freq = 440;
 	};
 	pianoKey pianoKeys[10];
-	int language = 0;
 
 	//Sound variables
 	const int FS = 44100;
@@ -143,38 +142,17 @@ int main(int argc, char* args[])
 			ImGui::SetNextWindowSize({ 675,260 }, ImGuiCond_Always);
 			if (ImGui::Begin("Fractal editor"))
 			{
-				if (language == 0) {
-					ImGui::Text("Position: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
-					ImGui::Text("Cursor position: (%f, %f)", lastClickPos.x, lastClickPos.y);
-					ImGui::Text("Speed: %f, Zoom level: %f", cam.GetSpeed(), zoomValue);
-					ImGui::SliderInt("Sound frequency base", &freq, 0, 1236);
-					ImGui::Checkbox("Play sounds for close neighbours", &allowCloseNeighbours);
-					ImGui::SliderInt("Max iteration", &maxIterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */ );
-					ImGui::Combo("Fractal type", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
-					ImGui::SliderFloat("Fractal background brightness", &backgroundBrightness, 0.1, 3);
-					ImGui::ColorEdit3("Fractal inside color", insideColor);
-					ImGui::ColorEdit3("Fractal outside color", outsideColor);
-				}
-				else if (language == 1) {
-					ImGui::Text("Pozicio: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
-					ImGui::Text("Kurzor pozicio: (%f, %f)", lastClickPos.x, lastClickPos.y);
-					ImGui::Text("Sebesseg: %f, Zoom merteke: %f", cam.GetSpeed(), zoomValue);
-					ImGui::SliderInt("Hang alapfrekvencia", &freq, 0, 1236);
-					ImGui::Checkbox("Play sounds for close neighbours", &allowCloseNeighbours);
-					ImGui::SliderInt("Maximum iteracios lepesek", &maxIterations, 1, 5000, "%d"/*, ImGuiSliderFlags_Logarithmic */);
-					ImGui::Combo("Fraktal tipusa", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
-					ImGui::SliderFloat("Fraktal hatterenek fenyereje", &backgroundBrightness, 0.1, 3);
-					ImGui::ColorEdit3("Fraktal belsejenek szine", insideColor);
-					ImGui::ColorEdit3("Fraktal hatterenek szine", outsideColor);
-				}
-				
-				if (ImGui::SmallButton("English")) {
-					language = 0;
-				} 
-				ImGui::SameLine();
-				if (ImGui::SmallButton("Magyar")) {
-					language = 1;
-				}
+				ImGui::PushItemWidth(-220);
+				ImGui::Text(u8"Poz�ci�: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
+				ImGui::Text(u8"Kurzor poz�ci�: (%f, %f)", lastClickPos.x, lastClickPos.y);
+				ImGui::Text(u8"Sebess�g: %f, Zoom m�rt�ke: %f", cam.GetSpeed(), zoomValue);
+				ImGui::SliderInt(u8"Hang alapfrekvencia", &freq, 0, 6000);
+				ImGui::Checkbox(u8"K�zeli szomsz�dok hangj�nak enged�lyez�se", &allowCloseNeighbours);
+				ImGui::SliderInt(u8"Maximum iter�ci�s l�p�sek", &maxIterations, 1, 2500, "%d"/*, ImGuiSliderFlags_Logarithmic */);
+				ImGui::Combo(u8"Frakt�l t�pusa", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
+				ImGui::SliderFloat(u8"Frakt�l h�tter�nek f�nyereje", &backgroundBrightness, 0.1, 3);
+				ImGui::ColorEdit3(u8"Frakt�l belsej�nek sz�ne", insideColor);
+				ImGui::ColorEdit3(u8"Frakt�l h�tter�nek sz�ne", outsideColor);
 			}
 			ImGui::End();
 
