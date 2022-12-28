@@ -41,7 +41,7 @@ void FractalSound::PlaySoundAtPos(int fractalType, glm::vec2 pos, int freq, bool
 bool FractalSound::FillBuffer(int fractalType, glm::vec2 pos, int freq, float buff[]) {
 	glm::vec2 z = pos;
 	glm::vec2 c = pos;
-	int i = 0, max_iterations = 2000;
+	int i = 0, max_iterations = 2500;
 	int len = fs_;
 	bool partOfTheSet = false;
 

@@ -6,10 +6,10 @@
 
 int main(int argc, char* args[])
 {
-	df::Sample sam("Dragonfly Demo", 800, 800, df::Sample::FLAGS::DEFAULT);
+	df::Sample sam("Sounds of chaos", 800, 800, df::Sample::FLAGS::DEFAULT);
 	df::Camera cam;								// Implements a camera event class with handles
 	cam.SetView(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
-	cam.SetSpeed(2.0f);
+	cam.SetSpeed(4.0f);
 	sam.AddHandlerClass(cam, 5);				// class callbacks will be called to change its state
 	sam.AddHandlerClass<df::ImGuiHandler>(10);	// static handle functions only
 
@@ -18,9 +18,9 @@ int main(int argc, char* args[])
 
 	df::VaoArrays demoVao((GLuint)MyVAO, GL_TRIANGLE_STRIP, 4, 0u);
 
-	df::ShaderProgramEditorVF program = "MyShaderProgram";
+	df::ShaderProgramVF program = "MyShaderProgram";
 	program << "Shaders/vert.vert"_vert << "Shaders/frag.frag"_frag << df::LinkProgram;
-	df::ShaderProgramEditorVF postprocess = "Postprocess shader program";
+	df::ShaderProgramVF postprocess = "Postprocess shader program";
 	postprocess << "Shaders/postprocess.vert"_vert << "Shaders/postprocess.frag"_frag << df::LinkProgram;
 
 	int w = df::Backbuffer.getWidth(), h = df::Backbuffer.getHeight();
@@ -28,7 +28,7 @@ int main(int argc, char* args[])
 
 	//General variables
 	glm::vec2 lastClickPos{ 0,0 };
-	float zoomValue = 1.0f;
+	float zoomValue = 0.5f;
 	bool isShiftHeldDown = false;
 	struct pianoKey {
 		glm::vec2 pos{ 0 };
@@ -44,7 +44,7 @@ int main(int argc, char* args[])
 	FractalSound* fractalSound = new FractalSound(FS);
 
 	//Graphic variables
-	int maxIterations = 5000;
+	int maxIterations = 2500;
 	int fractalType = 0;
 	const char* fractalTypes[]{ "Mandelbrot set", "Multibrot set (z = z^3+c)", "Burning ship fractal" };
 	float insideColor[3] = { 0.9f,0.5f,0.3f };
