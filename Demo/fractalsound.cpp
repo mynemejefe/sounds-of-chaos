@@ -21,7 +21,7 @@ void FractalSound::PlaySoundAtPos(int fractalType, glm::vec2 pos, int freq, bool
 	bool partOfFractal = FillBuffer(fractalType, pos, freq, (float*)chunk->abuf);
 
 	if (!allowCloseNeighbours && !partOfFractal) {
-		Mix_FreeChunk(chunk);
+		FractalSound::Mix_FreeChunk(chunk);
 		return;
 	}
 
@@ -31,7 +31,7 @@ void FractalSound::PlaySoundAtPos(int fractalType, glm::vec2 pos, int freq, bool
 
 			Sleep(2000);
 
-			Mix_FreeChunk(chunk);
+			FractalSound::Mix_FreeChunk(chunk);
 		});
 
 		play.detach();
@@ -47,19 +47,22 @@ bool FractalSound::FillBuffer(int fractalType, glm::vec2 pos, int freq, float bu
 
 	while (glm::length(z) <= 2 && i < max_iterations && i < len) {
 		float length = glm::length(z); //abs value of point at the current iteration
+		float sin = sinf(2 * (float)M_PI * freq / fs_ * i) / 4; //sine wave
 
-		float fval = sinf(2 * (float)M_PI * freq / fs_ * i) / 4;
-		buff[2 * i] = fval * length; //left channel
-		buff[2 * i + 1] = fval * length; //right channel
+		buff[2 * i] = sin * length; //left channel
+		buff[2 * i + 1] = sin * length; //right channel
 
 		switch (fractalType) {
 		case 0:
+			//mandelbrot
 			z = Mul(z, z) + c;
 			break;
 		case 1:
+			//multibrot
 			z = Mul(Mul(z, z), z) + c;
 			break;
 		case 2:
+			//burning ship
 			glm::vec2 z_abs = glm::abs(z);
 			z = Mul(z_abs, z_abs) + c;
 			break;
@@ -73,6 +76,7 @@ bool FractalSound::FillBuffer(int fractalType, glm::vec2 pos, int freq, float bu
 	}
 
 	if (i != len && i != 0) {
+		//fill up rest of buffer
 		int repeats = len / i - 1;
 		int original_iterations = i;
 		int j = 0;

@@ -25,6 +25,7 @@ void main()
 	switch(fractal_type){
 		case 0:
 		{
+			//mandelbrot
 			for(; length(z) <= 2 && iter < max_iter; ++iter){
 				z = mul(z, z) + c;
 			}
@@ -32,6 +33,7 @@ void main()
 		}
 		case 1:
 		{
+			//multibrot
 			for(; length(z) <= 2 && iter < max_iter; ++iter){
 				z = mul(mul(z, z),z) + c;
 			}
@@ -39,6 +41,7 @@ void main()
 		}
 		case 2:
 		{
+			//burning ship
 			for(; length(z) <= 2 && iter < max_iter; ++iter){
 				vec2 z_abs = abs(z);
 				z = mul(z_abs,z_abs) + c;

@@ -1,13 +1,12 @@
-#include <Dragonfly/editor.h>		 //inlcludes most features
-#include <Dragonfly/detail/buffer.h> //will be replaced
-#include <Dragonfly/detail/vao.h>	 //will be replaced
+#include <Dragonfly/editor.h>
+#include <Dragonfly/detail/buffer.h>
+#include <Dragonfly/detail/vao.h>
 #include <SDL/SDL_mixer.h>
 #include "fractalsound.h"
 
 int main(int argc, char* args[])
 {
 	df::Sample sam("Dragonfly Demo", 800, 800, df::Sample::FLAGS::DEFAULT);
-	// df::Sample simplifies OpenGL, SDL, ImGui, RenderDoc in the render loop, and handles user input via callback member functions in priority queues
 	df::Camera cam;								// Implements a camera event class with handles
 	cam.SetView(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1));
 	cam.SetSpeed(2.0f);
@@ -15,9 +14,9 @@ int main(int argc, char* args[])
 	sam.AddHandlerClass<df::ImGuiHandler>(10);	// static handle functions only
 
 	eltecg::ogl::ArrayBuffer MyVBO;	MyVBO.constructMutable(std::vector<glm::vec2>{ {-1, -1}, { 1, -1 }, { -1, 1 }, { 1, 1 }}, GL_STATIC_DRAW);
-	eltecg::ogl::VertexArray MyVAO;	MyVAO.addVBO<glm::vec2>(MyVBO);		//these two classes will be removed from Dragonfly as soon as we have the replacement ready
+	eltecg::ogl::VertexArray MyVAO;	MyVAO.addVBO<glm::vec2>(MyVBO);
 
-	df::VaoArrays demoVao((GLuint)MyVAO, GL_TRIANGLE_STRIP, 4, 0u); // temporary solution that wraps an ID
+	df::VaoArrays demoVao((GLuint)MyVAO, GL_TRIANGLE_STRIP, 4, 0u);
 
 	df::ShaderProgramEditorVF program = "MyShaderProgram";
 	program << "Shaders/vert.vert"_vert << "Shaders/frag.frag"_frag << df::LinkProgram;
@@ -107,7 +106,7 @@ int main(int argc, char* args[])
 
 			if (pianoKey != -1)
 			{
-				/* play sound / record new sound */
+				//play sound / record new sound
 				if (isShiftHeldDown)
 				{
 					pianoKeys[pianoKey].pos = glm::vec2(lastClickPos.x, lastClickPos.y);
