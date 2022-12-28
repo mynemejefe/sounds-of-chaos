@@ -138,20 +138,27 @@ int main(int argc, char* args[])
 			cam.Update();
 			cam.RenderUI();
 
-			ImGui::SetNextWindowSize({ 675,260 }, ImGuiCond_Always);
-			if (ImGui::Begin("Fractal editor"))
+			ImGui::SetNextWindowSize({ 500,320 }, ImGuiCond_Once);
+			ImGui::SetNextWindowSizeConstraints(ImVec2{ 350,100 }, ImVec2{1000,2000});
+			if (ImGui::Begin(u8"Beállítások"))
 			{
 				ImGui::PushItemWidth(-220);
-				ImGui::Text(u8"Poz�ci�: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
-				ImGui::Text(u8"Kurzor poz�ci�: (%f, %f)", lastClickPos.x, lastClickPos.y);
-				ImGui::Text(u8"Sebess�g: %f, Zoom m�rt�ke: %f", cam.GetSpeed(), zoomValue);
-				ImGui::SliderInt(u8"Hang alapfrekvencia", &freq, 0, 6000);
-				ImGui::Checkbox(u8"K�zeli szomsz�dok hangj�nak enged�lyez�se", &allowCloseNeighbours);
-				ImGui::SliderInt(u8"Maximum iter�ci�s l�p�sek", &maxIterations, 1, 2500, "%d"/*, ImGuiSliderFlags_Logarithmic */);
-				ImGui::Combo(u8"Frakt�l t�pusa", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
-				ImGui::SliderFloat(u8"Frakt�l h�tter�nek f�nyereje", &backgroundBrightness, 0.1, 3);
-				ImGui::ColorEdit3(u8"Frakt�l belsej�nek sz�ne", insideColor);
-				ImGui::ColorEdit3(u8"Frakt�l h�tter�nek sz�ne", outsideColor);
+				if (ImGui::CollapsingHeader(u8"Kamera információ")) {
+					ImGui::Text(u8"Pozíció: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
+					ImGui::Text(u8"Kurzor pozíció: (%f, %f)", lastClickPos.x, lastClickPos.y);
+					ImGui::Text(u8"Sebesség: %f, Zoom mértéke: %f", cam.GetSpeed(), zoomValue);
+				}
+				if (ImGui::CollapsingHeader(u8"Megjelenítés")) {
+					ImGui::Combo(u8"Fraktál típusa", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
+					ImGui::SliderInt(u8"Maximum iterácós lépések", &maxIterations, 1, 2500, "%d");
+					ImGui::SliderFloat(u8"Fraktál hátterének fényereje", &backgroundBrightness, 0.1, 5);
+					ImGui::ColorEdit3(u8"Fraktál belsejének színe", insideColor);
+					ImGui::ColorEdit3(u8"Fraktál hátterének színe", outsideColor);
+				}
+				if (ImGui::CollapsingHeader(u8"Hanggenerálás")) {
+					ImGui::SliderInt(u8"Hang alapfrekvencia", &freq, 0, 6000);
+					ImGui::Checkbox(u8"Közeli szomszédok hangjának engedélyezése", &allowCloseNeighbours);
+				}
 			}
 			ImGui::End();
 
