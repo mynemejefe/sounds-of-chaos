@@ -139,29 +139,28 @@ int main(int argc, char* args[])
 	sam.Run([&](float deltaTime) //delta time in ms
 		{
 			cam.Update();
-			cam.RenderUI();
 
 			ImGui::SetNextWindowSize({ 500,320 }, ImGuiCond_Once);
-			ImGui::SetNextWindowSizeConstraints(ImVec2{ 350,100 }, ImVec2{1000,2000});
-			if (ImGui::Begin(u8"Beállítások"))
+			ImGui::SetNextWindowSizeConstraints(ImVec2{ 350,100 }, ImVec2{ 1000,2000 });
+			if (ImGui::Begin("Beállítások"))
 			{
 				ImGui::PushItemWidth(-220);
-				if (ImGui::CollapsingHeader(u8"Kamera információ")) {
-					ImGui::Text(u8"Pozíció: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
-					ImGui::Text(u8"Kurzor pozíció: (%f, %f)", lastClickPos.x, lastClickPos.y);
-					ImGui::Text(u8"Sebesség: %f, Zoom mértéke: %f", cam.GetSpeed(), zoomValue);
+				if (ImGui::CollapsingHeader("Kamera információ")) {
+					ImGui::Text("Pozíció: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
+					ImGui::Text("Kurzor pozíció: (%f, %f)", lastClickPos.x, lastClickPos.y);
+					ImGui::Text("Sebesség: %f, Zoom mértéke: %f", cam.GetSpeed(), zoomValue);
 				}
-				if (ImGui::CollapsingHeader(u8"Megjelenítés")) {
-					ImGui::Combo(u8"Fraktál típusa", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
-					ImGui::SliderInt(u8"Fraktál hatványkitevöje", &power, 2, 10, "%d");
-					ImGui::SliderInt(u8"Maximum iterácós lépések", &maxIterations, 1, 2500, "%d");
-					ImGui::SliderFloat(u8"Fraktál hátterének fényereje", &backgroundBrightness, 0.1, 5);
-					ImGui::ColorEdit3(u8"Fraktál belsejének színe", insideColor);
-					ImGui::ColorEdit3(u8"Fraktál hátterének színe", outsideColor);
+				if (ImGui::CollapsingHeader("Megjelenítés")) {
+					ImGui::Combo("Fraktál típusa", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
+					ImGui::SliderInt("Fraktál hatványkitevöje", &power, 2, 10, "%d");
+					ImGui::SliderInt("Maximum iterácós lépések", &maxIterations, 1, 2500, "%d");
+					ImGui::SliderFloat("Fraktál hátterének fényereje", &backgroundBrightness, 0.1, 5);
+					ImGui::ColorEdit3("Fraktál belsejének színe", insideColor);
+					ImGui::ColorEdit3("Fraktál hátterének színe", outsideColor);
 				}
-				if (ImGui::CollapsingHeader(u8"Hanggenerálás")) {
-					ImGui::SliderInt(u8"Hang alapfrekvencia", &freq, 0, 6000);
-					ImGui::Checkbox(u8"Közeli szomszédok hangjának engedélyezése", &allowCloseNeighbours);
+				if (ImGui::CollapsingHeader("Hanggenerálás")) {
+					ImGui::SliderInt("Hang alapfrekvencia", &freq, 0, 6000);
+					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &allowCloseNeighbours);
 				}
 			}
 			ImGui::End();
