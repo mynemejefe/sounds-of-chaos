@@ -33,6 +33,7 @@ int main(int argc, char* args[])
 	struct pianoKey {
 		glm::vec2 pos{ 0 };
 		int fractalType = 0;
+		int power = 2;
 		int freq = 440;
 	};
 	pianoKey pianoKeys[10];
@@ -46,7 +47,8 @@ int main(int argc, char* args[])
 	//Graphic variables
 	int maxIterations = 2500;
 	int fractalType = 0;
-	const char* fractalTypes[]{ "Mandelbrot set", "Multibrot set (z = z^3+c)", "Burning ship fractal" };
+	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fractal" };
+	int power = 2;
 	float insideColor[3] = { 0.9f,0.5f,0.3f };
 	float outsideColor[3] = { 0.9f,0.5f,0.3f };
 	float backgroundBrightness = 1;
@@ -79,7 +81,7 @@ int main(int argc, char* args[])
 					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
-					fractalSound->PlaySoundAtPos(fractalType, lastClickPos, freq, allowCloseNeighbours);
+					fractalSound->PlaySoundAtPos(fractalType, power, lastClickPos, freq, allowCloseNeighbours);
 
 					return true;
 				}
@@ -112,11 +114,12 @@ int main(int argc, char* args[])
 					pianoKeys[pianoKey].pos = glm::vec2(lastClickPos.x, lastClickPos.y);
 					pianoKeys[pianoKey].fractalType = fractalType;
 					pianoKeys[pianoKey].freq = freq;
+					pianoKeys[pianoKey].power = power;
 				}
 				else if (glm::length(pianoKeys[pianoKey].pos) != 0)
 				{
 					struct pianoKey key = pianoKeys[pianoKey];
-					fractalSound->PlaySoundAtPos(key.fractalType, key.pos, key.freq, true);
+					fractalSound->PlaySoundAtPos(key.fractalType, key.power, key.pos, key.freq, true);
 				}
 			}
 
@@ -150,6 +153,7 @@ int main(int argc, char* args[])
 				}
 				if (ImGui::CollapsingHeader(u8"Megjelenítés")) {
 					ImGui::Combo(u8"Fraktál típusa", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
+					ImGui::SliderInt(u8"Fraktál hatványkitevöje", &power, 2, 10, "%d");
 					ImGui::SliderInt(u8"Maximum iterácós lépések", &maxIterations, 1, 2500, "%d");
 					ImGui::SliderFloat(u8"Fraktál hátterének fényereje", &backgroundBrightness, 0.1, 5);
 					ImGui::ColorEdit3(u8"Fraktál belsejének színe", insideColor);
@@ -169,7 +173,8 @@ int main(int argc, char* args[])
 				<< "fractal_outside_col" << glm::vec3(outsideColor[0], outsideColor[1], outsideColor[2])
 				<< "background_brightness" << backgroundBrightness
 				<< "max_iter" << maxIterations
-				<< "fractal_type" << fractalType;
+				<< "fractal_type" << fractalType
+				<< "power" << power;
 			program << demoVao;	//Rendering: Ensures that both the vao and program is attached
 
 			df::Backbuffer << df::Clear() << postprocess << "texFrame" << frameBuff.get<glm::u8vec3>();

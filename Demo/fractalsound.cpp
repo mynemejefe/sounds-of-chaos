@@ -10,7 +10,7 @@ FractalSound::FractalSound(int fs) : fs_(fs) {
 	}
 }
 
-void FractalSound::PlaySoundAtPos(int fractalType, glm::vec2 pos, int freq, bool allowCloseNeighbours)
+void FractalSound::PlaySoundAtPos(int fractalType, int power, glm::vec2 pos, int freq, bool allowCloseNeighbours)
 {
 	Mix_Chunk* chunk = new Mix_Chunk;
 	chunk->alen = 4 * 2 * fs_;
@@ -18,7 +18,7 @@ void FractalSound::PlaySoundAtPos(int fractalType, glm::vec2 pos, int freq, bool
 	chunk->allocated = 0;
 	chunk->volume = MIX_MAX_VOLUME;
 	
-	bool partOfFractal = FillBuffer(fractalType, pos, freq, (float*)chunk->abuf);
+	bool partOfFractal = FillBuffer(fractalType, power, pos, freq, (float*)chunk->abuf);
 
 	if (!allowCloseNeighbours && !partOfFractal) {
 		FractalSound::Mix_FreeChunk(chunk);
@@ -38,7 +38,7 @@ void FractalSound::PlaySoundAtPos(int fractalType, glm::vec2 pos, int freq, bool
 	}
 }
 
-bool FractalSound::FillBuffer(int fractalType, glm::vec2 pos, int freq, float buff[]) {
+bool FractalSound::FillBuffer(int fractalType, int power, glm::vec2 pos, int freq, float buff[]) {
 	glm::vec2 z = pos;
 	glm::vec2 c = pos;
 	int i = 0, max_iterations = 2500;
@@ -55,16 +55,12 @@ bool FractalSound::FillBuffer(int fractalType, glm::vec2 pos, int freq, float bu
 		switch (fractalType) {
 		case 0:
 			//mandelbrot
-			z = Mul(z, z) + c;
+			z = VecPow(z,power) + c;
 			break;
 		case 1:
-			//multibrot
-			z = Mul(Mul(z, z), z) + c;
-			break;
-		case 2:
 			//burning ship
 			glm::vec2 z_abs = glm::abs(z);
-			z = Mul(z_abs, z_abs) + c;
+			z = VecPow(z_abs, power) + c;
 			break;
 		}
 		
@@ -92,6 +88,16 @@ bool FractalSound::FillBuffer(int fractalType, glm::vec2 pos, int freq, float bu
 
 glm::vec2 FractalSound::Mul(glm::vec2 u, glm::vec2 v) {
 	return glm::vec2(u.x * v.x - u.y * v.y, u.x * v.y + u.y * v.x);
+}
+
+glm::vec2 FractalSound::VecPow(glm::vec2 u, int pow) {
+	int i = 1;
+	glm::vec2 v = u;
+	while (i < pow) {
+		v = Mul(v, u);
+		i++;
+	}
+	return v;
 }
 
 void FractalSound::Mix_FreeChunk(Mix_Chunk* chunk)

@@ -7,12 +7,23 @@ uniform vec3 fractal_outside_col;
 uniform float background_brightness;
 uniform int max_iter;
 uniform int fractal_type;
+uniform int power;
 
 layout(location = 0) in vec2 fs_in_tex;
 out vec4 fs_out_col;
 
 vec2 mul(vec2 u, vec2 v){
 	return vec2(u.x*v.x - u.y*v.y, u.x*v.y + u.y*v.x);
+}
+
+vec2 vec_pow(vec2 u, int power){
+	int i = 1;
+	vec2 v = u;
+	while (i < power) {
+		v = mul(v,u);
+		i++;
+	}
+	return v;
 }
 
 void main()
@@ -27,24 +38,16 @@ void main()
 		{
 			//mandelbrot
 			for(; length(z) <= 2 && iter < max_iter; ++iter){
-				z = mul(z, z) + c;
+				z = vec_pow(z,power) + c;
 			}
 			break;
 		}
 		case 1:
 		{
-			//multibrot
-			for(; length(z) <= 2 && iter < max_iter; ++iter){
-				z = mul(mul(z, z),z) + c;
-			}
-			break;
-		}
-		case 2:
-		{
 			//burning ship
 			for(; length(z) <= 2 && iter < max_iter; ++iter){
 				vec2 z_abs = abs(z);
-				z = mul(z_abs,z_abs) + c;
+				z = vec_pow(z_abs,power) + c;
 			}
 			break;
 		}
