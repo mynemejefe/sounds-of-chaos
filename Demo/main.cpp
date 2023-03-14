@@ -78,7 +78,7 @@ int main(int argc, char* args[])
 				switch (mouse.button) {
 				case SDL_BUTTON_LEFT:
 					x = (pos.x + (mouse.x / resolution.x - 0.5) * 2 / zoomValue);
-					y = (pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue);
+					y = -(pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue);
 					lastClickPos = glm::vec2(x, y);
 
 					fractalSound->PlaySoundAtPos(fractalType, power, lastClickPos, freq, allowCloseNeighbours);
