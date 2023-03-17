@@ -3,6 +3,7 @@
 #include <Dragonfly/detail/vao.h>
 #include <SDL/SDL_mixer.h>
 #include "fractalsound.h"
+#include "variables.h"
 
 int main(int argc, char* args[])
 {
@@ -26,43 +27,29 @@ int main(int argc, char* args[])
 	int w = df::Backbuffer.getWidth(), h = df::Backbuffer.getHeight();
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
-	//General variables
-	glm::vec2 lastClickPos{ 0,0 };
-	float zoomValue = 0.5f;
-	bool isShiftHeldDown = false;
-	struct pianoKey {
+	struct PianoKey {
 		glm::vec2 pos{ 0 };
 		int fractalType = 0;
 		int power = 2;
 		int freq = 440;
 	};
-	pianoKey pianoKeys[10];
 
-	//Sound variables
-	const int FS = 44100;
-	int freq = 440;
-	bool allowCloseNeighbours = true;
-	FractalSound* fractalSound = new FractalSound(FS);
-
-	//Graphic variables
-	int maxIterations = 2500;
-	int fractalType = 0;
 	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fractal" };
-	int power = 2;
-	float insideColor[3] = { 0.9f,0.5f,0.3f };
-	float outsideColor[3] = { 0.9f,0.5f,0.3f };
-	float backgroundBrightness = 1;
+
+	Variables variables;
+	FractalSound* fractalSound = new FractalSound(variables. FS);
+	PianoKey pianoKeys[10];
 
 	sam.AddMouseMotion([&](SDL_MouseMotionEvent e) { return true; }, 6);
 	sam.AddMouseWheel([&](SDL_MouseWheelEvent wheel)
 		{
 			if (wheel.y == 1) {
-				zoomValue *= 1.1;
+				variables.zoomValue *= 1.1;
 				cam.SetSpeed(cam.GetSpeed() / 1.1);
 				return true;
 			}
 			else if (wheel.y == -1) {
-				zoomValue /= 1.1;
+				variables.zoomValue /= 1.1;
 				cam.SetSpeed(cam.GetSpeed() * 1.1);
 				return true;
 			}
@@ -77,11 +64,11 @@ int main(int argc, char* args[])
 			if (mouse.type == SDL_MOUSEBUTTONDOWN) {
 				switch (mouse.button) {
 				case SDL_BUTTON_LEFT:
-					x = (pos.x + (mouse.x / resolution.x - 0.5) * 2 / zoomValue);
-					y = -(pos.y - (mouse.y / resolution.y - 0.5) * 2 / zoomValue);
-					lastClickPos = glm::vec2(x, y);
+					x = (pos.x + (mouse.x / resolution.x - 0.5) * 2 / variables.zoomValue);
+					y = -(pos.y - (mouse.y / resolution.y - 0.5) * 2 / variables.zoomValue);
+					variables.lastClickPos = glm::vec2(x, y);
 
-					fractalSound->PlaySoundAtPos(fractalType, power, lastClickPos, freq, allowCloseNeighbours);
+					fractalSound->PlaySoundAtPos(variables);
 
 					return true;
 				}
@@ -93,7 +80,7 @@ int main(int argc, char* args[])
 			int pianoKey = -1;
 			switch (kb.keysym.sym)
 			{
-			case SDLK_LSHIFT:	isShiftHeldDown = true; break;
+			case SDLK_LSHIFT:	variables.isShiftHeldDown = true; break;
 			case SDLK_0:		pianoKey = 0; break;
 			case SDLK_1:		pianoKey = 1; break;
 			case SDLK_2:		pianoKey = 2; break;
@@ -109,16 +96,16 @@ int main(int argc, char* args[])
 			if (pianoKey != -1)
 			{
 				//play sound / record new sound
-				if (isShiftHeldDown)
+				if (variables.isShiftHeldDown)
 				{
-					pianoKeys[pianoKey].pos = glm::vec2(lastClickPos.x, lastClickPos.y);
-					pianoKeys[pianoKey].fractalType = fractalType;
-					pianoKeys[pianoKey].freq = freq;
-					pianoKeys[pianoKey].power = power;
+					pianoKeys[pianoKey].pos = glm::vec2(variables.lastClickPos.x, variables.lastClickPos.y);
+					pianoKeys[pianoKey].fractalType = variables.fractalType;
+					pianoKeys[pianoKey].freq = variables.freq;
+					pianoKeys[pianoKey].power = variables.power;
 				}
 				else if (glm::length(pianoKeys[pianoKey].pos) != 0)
 				{
-					struct pianoKey key = pianoKeys[pianoKey];
+					struct PianoKey key = pianoKeys[pianoKey];
 					fractalSound->PlaySoundAtPos(key.fractalType, key.power, key.pos, key.freq, true);
 				}
 			}
@@ -129,7 +116,7 @@ int main(int argc, char* args[])
 		{
 			if (kb.keysym.sym == SDLK_LSHIFT)	
 			{
-				isShiftHeldDown = false;
+				variables.isShiftHeldDown = false;
 			}
 			return true; 
 		}, 5);
@@ -147,33 +134,33 @@ int main(int argc, char* args[])
 				ImGui::PushItemWidth(-220);
 				if (ImGui::CollapsingHeader("Kamera információ")) {
 					ImGui::Text("Pozíció: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
-					ImGui::Text("Kurzor pozíció: (%f, %f)", lastClickPos.x, lastClickPos.y);
-					ImGui::Text("Sebesség: %f, Zoom mértéke: %f", cam.GetSpeed(), zoomValue);
+					ImGui::Text("Kurzor pozíció: (%f, %f)", variables.lastClickPos.x, variables.lastClickPos.y);
+					ImGui::Text("Sebesség: %f, Zoom mértéke: %f", cam.GetSpeed(), variables.zoomValue);
 				}
 				if (ImGui::CollapsingHeader("Megjelenítés")) {
-					ImGui::Combo("Fraktál típusa", &fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
-					ImGui::SliderInt("Fraktál hatványkitevöje", &power, 2, 10, "%d");
-					ImGui::SliderInt("Maximum iterácós lépések", &maxIterations, 1, 2500, "%d");
-					ImGui::SliderFloat("Fraktál hátterének fényereje", &backgroundBrightness, 0.1, 5);
-					ImGui::ColorEdit3("Fraktál belsejének színe", insideColor);
-					ImGui::ColorEdit3("Fraktál hátterének színe", outsideColor);
+					ImGui::Combo("Fraktál típusa", &variables.fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
+					ImGui::SliderInt("Fraktál hatványkitevöje", &variables.power, 2, 10, "%d");
+					ImGui::SliderInt("Maximum iterácós lépések", &variables.maxIterations, 1, 2500, "%d");
+					ImGui::SliderFloat("Fraktál hátterének fényereje", &variables.backgroundBrightness, 0.1, 5);
+					ImGui::ColorEdit3("Fraktál belsejének színe", variables.insideColor);
+					ImGui::ColorEdit3("Fraktál hátterének színe", variables.outsideColor);
 				}
 				if (ImGui::CollapsingHeader("Hanggenerálás")) {
-					ImGui::SliderInt("Hang alapfrekvencia", &freq, 0, 6000);
-					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &allowCloseNeighbours);
+					ImGui::SliderInt("Hang alapfrekvencia", &variables.freq, 0, 6000);
+					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &variables.allowCloseNeighbours);
 				}
 			}
 			ImGui::End();
 
 			frameBuff << df::Clear() << program
 				<< "offset" << glm::vec2(cam.GetEye().x, cam.GetEye().y)
-				<< "zoom_value" << zoomValue
-				<< "fractal_inside_col" << glm::vec3(insideColor[0], insideColor[1], insideColor[2])
-				<< "fractal_outside_col" << glm::vec3(outsideColor[0], outsideColor[1], outsideColor[2])
-				<< "background_brightness" << backgroundBrightness
-				<< "max_iter" << maxIterations
-				<< "fractal_type" << fractalType
-				<< "power" << power;
+				<< "zoom_value" << variables.zoomValue
+				<< "fractal_inside_col" << glm::vec3(variables.insideColor[0], variables.insideColor[1], variables.insideColor[2])
+				<< "fractal_outside_col" << glm::vec3(variables.outsideColor[0], variables.outsideColor[1], variables.outsideColor[2])
+				<< "background_brightness" << variables.backgroundBrightness
+				<< "max_iter" << variables.maxIterations
+				<< "fractal_type" << variables.fractalType
+				<< "power" << variables.power;
 			program << demoVao;	//Rendering: Ensures that both the vao and program is attached
 
 			df::Backbuffer << df::Clear() << postprocess << "texFrame" << frameBuff.get<glm::u8vec3>();

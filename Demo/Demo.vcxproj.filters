@@ -29,5 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fractalsound.h" />
+    <ClInclude Include="variables.h" />
   </ItemGroup>
 </Project>

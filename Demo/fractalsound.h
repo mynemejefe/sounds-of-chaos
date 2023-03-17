@@ -2,11 +2,13 @@
 
 #include <SDL/SDL_mixer.h>
 #include <glm/glm.hpp>
+#include "variables.h"
 
 class FractalSound
 {
 public:
 	FractalSound(int fs);
+	void PlaySoundAtPos(Variables variables);
 	void PlaySoundAtPos(int fractalType, int power, glm::vec2 pos, int freq, bool allowCloseNeighbours);
 
 	inline const int GetFs() { return fs_; };

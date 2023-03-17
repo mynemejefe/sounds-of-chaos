@@ -10,6 +10,11 @@ FractalSound::FractalSound(int fs) : fs_(fs) {
 	}
 }
 
+void FractalSound::PlaySoundAtPos(Variables variables)
+{
+	PlaySoundAtPos(variables.fractalType, variables.power, variables.lastClickPos, variables.freq, variables.allowCloseNeighbours);
+}
+
 void FractalSound::PlaySoundAtPos(int fractalType, int power, glm::vec2 pos, int freq, bool allowCloseNeighbours)
 {
 	Mix_Chunk* chunk = new Mix_Chunk;
