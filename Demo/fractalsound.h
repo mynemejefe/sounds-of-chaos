@@ -9,15 +9,17 @@ class FractalSound
 public:
 	FractalSound(int fs);
 	void PlaySoundAtPos(Variables variables);
-	void PlaySoundAtPos(int fractalType, int power, glm::vec2 pos, int freq, bool allowCloseNeighbours);
+	float* CreateSoundBufferFromLastPos(Variables variables);
+	void PlaySoundFromBuffer(float buff[]);
 
 	inline const int GetFs() { return fs_; };
 private:
 	int fs_;
 
-	bool FillBuffer(int fractalType, int power, glm::vec2 pos, int freq, float buff[]);
+	bool FillBuffer(Variables variables, float buff[]);
 	glm::vec2 Mul(glm::vec2 u, glm::vec2 v);
 	glm::vec2 VecPow(glm::vec2 u, int pow);
+	Mix_Chunk* CreateMixChunk();
 	void Mix_FreeChunk(Mix_Chunk* chunk);
 };
 

@@ -28,17 +28,15 @@ int main(int argc, char* args[])
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
 	struct PianoKey {
-		glm::vec2 pos{ 0 };
-		int fractalType = 0;
-		int power = 2;
-		int freq = 440;
+		float* soundBuffer;
+		bool isFilled = false;
 	};
 
 	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fractal" };
 
 	Variables variables;
 	FractalSound* fractalSound = new FractalSound(variables. FS);
-	PianoKey pianoKeys[10];
+	PianoKey pianoKeys[10]{};
 
 	sam.AddMouseMotion([&](SDL_MouseMotionEvent e) { return true; }, 6);
 	sam.AddMouseWheel([&](SDL_MouseWheelEvent wheel)
@@ -95,18 +93,17 @@ int main(int argc, char* args[])
 
 			if (pianoKey != -1)
 			{
-				//play sound / record new sound
+				PianoKey* key = &pianoKeys[pianoKey];
+				// Shift held down		= record new sound
+				// Shift not held down	= play recorded sound
 				if (variables.isShiftHeldDown)
 				{
-					pianoKeys[pianoKey].pos = glm::vec2(variables.lastClickPos.x, variables.lastClickPos.y);
-					pianoKeys[pianoKey].fractalType = variables.fractalType;
-					pianoKeys[pianoKey].freq = variables.freq;
-					pianoKeys[pianoKey].power = variables.power;
+					key->soundBuffer = fractalSound->CreateSoundBufferFromLastPos(variables);
+					key->isFilled = true;
 				}
-				else if (glm::length(pianoKeys[pianoKey].pos) != 0)
+				else if (key->isFilled)
 				{
-					struct PianoKey key = pianoKeys[pianoKey];
-					fractalSound->PlaySoundAtPos(key.fractalType, key.power, key.pos, key.freq, true);
+					fractalSound->PlaySoundFromBuffer(key->soundBuffer);
 				}
 			}
 
