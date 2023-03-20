@@ -53,7 +53,7 @@ void main()
 		}
 	}
 
-	float outside_dim =  background_brightness * iter / 32.0f / sqrt(zoom_value);
+	float outside_dim = background_brightness * iter / 32.0f / log2(zoom_value+1);
 
 	if (iter == max_iter) { 
 		fs_out_col = vec4(fractal_inside_col, 1);
