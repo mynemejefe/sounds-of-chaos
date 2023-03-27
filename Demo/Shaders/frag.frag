@@ -1,6 +1,8 @@
 #version 410
 
 uniform vec2 offset;
+uniform vec2 last_click;
+uniform vec3 last_click_col;
 uniform float zoom_value;
 uniform vec3 fractal_inside_col;
 uniform vec3 fractal_outside_col;
@@ -59,5 +61,14 @@ void main()
 		fs_out_col = vec4(fractal_inside_col, 1);
 	} else if (iter < max_iter) {
 		fs_out_col = vec4(fractal_outside_col * outside_dim, 1);
+	}
+
+	//Click visualization
+	float circleX = (last_click.x - c.x);
+	float circleY = (last_click.y - c.y);
+	float radius = 0.02 / zoom_value;
+
+	if(circleX * circleX + circleY * circleY < radius * radius){
+		fs_out_col = fs_out_col*0.1 + vec4(last_click_col, 1);
 	}
 }

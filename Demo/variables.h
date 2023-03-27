@@ -20,4 +20,5 @@ struct Variables {
 	float insideColor[3] = { 0.9f,0.5f,0.3f };
 	float outsideColor[3] = { 0.9f,0.5f,0.3f };
 	float backgroundBrightness = 1;
+	float lastClickColor[3] = { 0.3f, 0.8f, 0.5f };
 };

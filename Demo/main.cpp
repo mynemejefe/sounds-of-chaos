@@ -157,6 +157,7 @@ int main(int argc, char* args[])
 					ImGui::SliderFloat("Fraktál hátterének fényereje", &variables.backgroundBrightness, 0.1, 5);
 					ImGui::ColorEdit3("Fraktál belsejének színe", variables.insideColor);
 					ImGui::ColorEdit3("Fraktál hátterének színe", variables.outsideColor);
+					ImGui::ColorEdit3("Kattintás színe", variables.lastClickColor);
 				}
 				if (ImGui::CollapsingHeader("Hanggenerálás")) {
 					ImGui::SliderInt("Hang alapfrekvencia", &variables.freq, 0, 6000);
@@ -167,6 +168,8 @@ int main(int argc, char* args[])
 
 			frameBuff << df::Clear() << program
 				<< "offset" << glm::vec2(cam.GetEye().x, cam.GetEye().y)
+				<< "last_click" << variables.lastClickPos
+				<< "last_click_col" << glm::vec3(variables.lastClickColor[0], variables.lastClickColor[1], variables.lastClickColor[2])
 				<< "zoom_value" << variables.zoomValue
 				<< "fractal_inside_col" << glm::vec3(variables.insideColor[0], variables.insideColor[1], variables.insideColor[2])
 				<< "fractal_outside_col" << glm::vec3(variables.outsideColor[0], variables.outsideColor[1], variables.outsideColor[2])
