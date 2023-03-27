@@ -12,6 +12,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="fractalsound.cpp" />
+    <ClCompile Include="fractalsoundtester.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\vert.vert">
@@ -30,5 +31,6 @@
   <ItemGroup>
     <ClInclude Include="fractalsound.h" />
     <ClInclude Include="variables.h" />
+    <ClInclude Include="fractalsoundtester.h" />
   </ItemGroup>
 </Project>

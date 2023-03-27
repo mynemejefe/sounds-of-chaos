@@ -12,60 +12,68 @@ FractalSound::FractalSound(int fs) : fs_(fs) {
 
 void FractalSound::PlaySoundAtPos(Variables variables)
 {
-	PlaySoundAtPos(variables.fractalType, variables.power, variables.lastClickPos, variables.freq, variables.allowCloseNeighbours);
-}
-
-void FractalSound::PlaySoundAtPos(int fractalType, int power, glm::vec2 pos, int freq, bool allowCloseNeighbours)
-{
-	Mix_Chunk* chunk = new Mix_Chunk;
-	chunk->alen = 4 * 2 * fs_;
-	chunk->abuf = new Uint8[chunk->alen];
-	chunk->allocated = 0;
-	chunk->volume = MIX_MAX_VOLUME;
+	Mix_Chunk* chunk = CreateMixChunk();
 	
-	bool partOfFractal = FillBuffer(fractalType, power, pos, freq, (float*)chunk->abuf);
+	bool partOfFractal = FillBuffer(variables, (float*)chunk->abuf);
 
-	if (!allowCloseNeighbours && !partOfFractal) {
+	if (!variables.allowCloseNeighbours && !partOfFractal) {
 		FractalSound::Mix_FreeChunk(chunk);
 		return;
 	}
 
-	if (allowCloseNeighbours || partOfFractal) {
-		std::thread play([this, chunk]() {
-			Mix_PlayChannel(-1, chunk, 0);
-
-			Sleep(2000);
-
-			FractalSound::Mix_FreeChunk(chunk);
-		});
-
-		play.detach();
-	}
+	FractalSound::PlaySoundFromMixChunk(chunk, true);
 }
 
-bool FractalSound::FillBuffer(int fractalType, int power, glm::vec2 pos, int freq, float buff[]) {
-	glm::vec2 z = pos;
-	glm::vec2 c = pos;
+// Make sure to deallocate the return value when you don't need it anymore
+float* FractalSound::CreateSoundBufferFromLastPos(Variables variables)
+{
+	//A Mix_Chunk's buffer length is 4*2*FS but its type is Uint8 (1 byte), float is 4 bytes
+	float* soundBuffer = new float[2 * variables.FS];
+
+	FillBuffer(variables, soundBuffer);
+
+	return soundBuffer;
+}
+
+void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse)
+{
+	Mix_Chunk* chunk = chunkToPlay;
+
+	std::thread play([this, chunk, freeUpAfterUse]() {
+		Mix_PlayChannel(-1, chunk, 0);
+
+		if (freeUpAfterUse) {
+			Sleep(2000);
+			FractalSound::Mix_FreeChunk(chunk);
+		}
+	});
+
+	play.detach();
+}
+
+bool FractalSound::FillBuffer(Variables variables, float buff[]) {
+	glm::vec2 z = variables.lastClickPos;
+	glm::vec2 c = variables.lastClickPos;
 	int i = 0, max_iterations = 2500;
 	int len = fs_;
 	bool partOfTheSet = false;
 
 	while (glm::length(z) <= 2 && i < max_iterations && i < len) {
 		float length = glm::length(z); //abs value of point at the current iteration
-		float sin = sinf(2 * (float)M_PI * freq / fs_ * i) / 4; //sine wave
+		float sin = sinf(2 * (float)M_PI * variables.freq / fs_ * i) / 4; //sine wave
 
 		buff[2 * i] = sin * length; //left channel
 		buff[2 * i + 1] = sin * length; //right channel
 
-		switch (fractalType) {
+		switch (variables.fractalType) {
 		case 0:
 			//mandelbrot
-			z = VecPow(z,power) + c;
+			z = VecPow(z, variables.power) + c;
 			break;
 		case 1:
 			//burning ship
 			glm::vec2 z_abs = glm::abs(z);
-			z = VecPow(z_abs, power) + c;
+			z = VecPow(z_abs, variables.power) + c;
 			break;
 		}
 		
@@ -103,6 +111,16 @@ glm::vec2 FractalSound::VecPow(glm::vec2 u, int pow) {
 		i++;
 	}
 	return v;
+}
+
+Mix_Chunk* FractalSound::CreateMixChunk() {
+	Mix_Chunk* chunk = new Mix_Chunk;
+	chunk->alen = 4 * 2 * fs_;
+	chunk->abuf = new Uint8[chunk->alen];
+	chunk->allocated = 0;
+	chunk->volume = MIX_MAX_VOLUME;
+
+	return chunk;
 }
 
 void FractalSound::Mix_FreeChunk(Mix_Chunk* chunk)

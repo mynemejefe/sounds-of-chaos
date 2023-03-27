@@ -4,6 +4,9 @@
 #include <SDL/SDL_mixer.h>
 #include "fractalsound.h"
 #include "variables.h"
+#include "fractalsoundtester.h"
+
+// #define TESTING
 
 int main(int argc, char* args[])
 {
@@ -28,17 +31,20 @@ int main(int argc, char* args[])
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
 	struct PianoKey {
-		glm::vec2 pos{ 0 };
-		int fractalType = 0;
-		int power = 2;
-		int freq = 440;
+		Mix_Chunk* soundToPlay;
+		bool isFilled = false;
 	};
 
 	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fractal" };
 
 	Variables variables;
-	FractalSound* fractalSound = new FractalSound(variables. FS);
-	PianoKey pianoKeys[10];
+	FractalSound* fractalSound = new FractalSound(variables.FS);
+	PianoKey pianoKeys[10]{};
+
+#ifdef TESTING
+	FractalSoundTester* tester = new FractalSoundTester(*fractalSound);
+	tester->FractalSoundConstructor();
+#else
 
 	sam.AddMouseMotion([&](SDL_MouseMotionEvent e) { return true; }, 6);
 	sam.AddMouseWheel([&](SDL_MouseWheelEvent wheel)
@@ -95,18 +101,25 @@ int main(int argc, char* args[])
 
 			if (pianoKey != -1)
 			{
-				//play sound / record new sound
+				PianoKey* key = &pianoKeys[pianoKey];
+				// Shift held down		= record new sound
+				// Shift not held down	= play recorded sound
 				if (variables.isShiftHeldDown)
 				{
-					pianoKeys[pianoKey].pos = glm::vec2(variables.lastClickPos.x, variables.lastClickPos.y);
-					pianoKeys[pianoKey].fractalType = variables.fractalType;
-					pianoKeys[pianoKey].freq = variables.freq;
-					pianoKeys[pianoKey].power = variables.power;
+					//Freeing up unused buffers
+					if (key->isFilled) {
+						delete(key->soundToPlay->abuf);
+					}
+					else {
+						key->soundToPlay = fractalSound->CreateMixChunk();
+					}
+					key->soundToPlay->abuf = (Uint8*)fractalSound->CreateSoundBufferFromLastPos(variables);
+					key->isFilled = true;
+					
 				}
-				else if (glm::length(pianoKeys[pianoKey].pos) != 0)
+				else if (key->isFilled)
 				{
-					struct PianoKey key = pianoKeys[pianoKey];
-					fractalSound->PlaySoundAtPos(key.fractalType, key.power, key.pos, key.freq, true);
+					fractalSound->PlaySoundFromMixChunk(key->soundToPlay, false);
 				}
 			}
 
@@ -170,5 +183,7 @@ int main(int argc, char* args[])
 			program.Render(); postprocess.Render(); //only the UI!!
 		}
 	);
+
+#endif
 	return 0;
 }
