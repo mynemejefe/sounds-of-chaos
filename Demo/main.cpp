@@ -28,14 +28,14 @@ int main(int argc, char* args[])
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
 	struct PianoKey {
-		float* soundBuffer;
+		Mix_Chunk* soundToPlay;
 		bool isFilled = false;
 	};
 
 	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fractal" };
 
 	Variables variables;
-	FractalSound* fractalSound = new FractalSound(variables. FS);
+	FractalSound* fractalSound = new FractalSound(variables.FS);
 	PianoKey pianoKeys[10]{};
 
 	sam.AddMouseMotion([&](SDL_MouseMotionEvent e) { return true; }, 6);
@@ -98,12 +98,20 @@ int main(int argc, char* args[])
 				// Shift not held down	= play recorded sound
 				if (variables.isShiftHeldDown)
 				{
-					key->soundBuffer = fractalSound->CreateSoundBufferFromLastPos(variables);
+					//Freeing up unused buffers
+					if (key->isFilled) {
+						delete(key->soundToPlay->abuf);
+					}
+					else {
+						key->soundToPlay = fractalSound->CreateMixChunk();
+					}
+					key->soundToPlay->abuf = (Uint8*)fractalSound->CreateSoundBufferFromLastPos(variables);
 					key->isFilled = true;
+					
 				}
 				else if (key->isFilled)
 				{
-					fractalSound->PlaySoundFromBuffer(key->soundBuffer);
+					fractalSound->PlaySoundFromMixChunk(key->soundToPlay, false);
 				}
 			}
 

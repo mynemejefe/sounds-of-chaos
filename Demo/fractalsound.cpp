@@ -21,44 +21,31 @@ void FractalSound::PlaySoundAtPos(Variables variables)
 		return;
 	}
 
-	if (variables.allowCloseNeighbours || partOfFractal) {
-		std::thread play([this, chunk]() {
-			Mix_PlayChannel(-1, chunk, 0);
-
-			Sleep(2000);
-
-			FractalSound::Mix_FreeChunk(chunk);
-		});
-
-		play.detach();
-	}
+	FractalSound::PlaySoundFromMixChunk(chunk, true);
 }
 
 // Make sure to deallocate the return value when you don't need it anymore
 float* FractalSound::CreateSoundBufferFromLastPos(Variables variables)
 {
-	Mix_Chunk* chunk = CreateMixChunk();
+	//A Mix_Chunk's buffer length is 4*2*FS but its type is Uint8 (1 byte), float is 4 bytes
+	float* soundBuffer = new float[2 * variables.FS];
 
-	FillBuffer(variables, (float*)chunk->abuf);
+	FillBuffer(variables, soundBuffer);
 
-	Uint8* buffer = chunk->abuf;
-	chunk->abuf = new Uint8[chunk->alen];
-	FractalSound::Mix_FreeChunk(chunk);
-
-	return (float*)buffer;
+	return soundBuffer;
 }
 
-void FractalSound::PlaySoundFromBuffer(float buff[]) 
+void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse)
 {
-	Mix_Chunk* chunk = CreateMixChunk();
+	Mix_Chunk* chunk = chunkToPlay;
 
-	std::thread play([this, chunk]() {
+	std::thread play([this, chunk, freeUpAfterUse]() {
 		Mix_PlayChannel(-1, chunk, 0);
 
-		Sleep(2000);
-
-		chunk->abuf = new Uint8[chunk->alen];
-		FractalSound::Mix_FreeChunk(chunk);
+		if (freeUpAfterUse) {
+			Sleep(2000);
+			FractalSound::Mix_FreeChunk(chunk);
+		}
 	});
 
 	play.detach();
