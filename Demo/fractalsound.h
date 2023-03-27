@@ -8,6 +8,7 @@ class FractalSound
 {
 public:
 	FractalSound(int fs);
+	~FractalSound() {};
 	void PlaySoundAtPos(Variables variables);
 	float* CreateSoundBufferFromLastPos(Variables variables);
 	void PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse);
@@ -22,5 +23,9 @@ private:
 	glm::vec2 VecPow(glm::vec2 u, int pow);
 
 	void Mix_FreeChunk(Mix_Chunk* chunk);
+
+#ifdef TESTING
+	friend class FractalSoundTester;
+#endif
 };
 

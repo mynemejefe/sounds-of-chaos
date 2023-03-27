@@ -4,6 +4,9 @@
 #include <SDL/SDL_mixer.h>
 #include "fractalsound.h"
 #include "variables.h"
+#include "fractalsoundtester.h"
+
+// #define TESTING
 
 int main(int argc, char* args[])
 {
@@ -37,6 +40,11 @@ int main(int argc, char* args[])
 	Variables variables;
 	FractalSound* fractalSound = new FractalSound(variables.FS);
 	PianoKey pianoKeys[10]{};
+
+#ifdef TESTING
+	FractalSoundTester* tester = new FractalSoundTester(*fractalSound);
+	tester->FractalSoundConstructor();
+#else
 
 	sam.AddMouseMotion([&](SDL_MouseMotionEvent e) { return true; }, 6);
 	sam.AddMouseWheel([&](SDL_MouseWheelEvent wheel)
@@ -175,5 +183,7 @@ int main(int argc, char* args[])
 			program.Render(); postprocess.Render(); //only the UI!!
 		}
 	);
+
+#endif
 	return 0;
 }
