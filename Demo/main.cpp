@@ -35,7 +35,8 @@ int main(int argc, char* args[])
 		bool isFilled = false;
 	};
 
-	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fractal" };
+	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fraktál" };
+	const char* SoundGenerationModes[]{ "Egyszerű", "Additív" };
 
 	Variables variables;
 	FractalSound* fractalSound = new FractalSound(variables.FS);
@@ -160,6 +161,7 @@ int main(int argc, char* args[])
 					ImGui::ColorEdit3("Kattintás színe", variables.lastClickColor);
 				}
 				if (ImGui::CollapsingHeader("Hanggenerálás")) {
+					ImGui::Combo("Hanggenerálás módja", &variables.soundGenerationMode, SoundGenerationModes, IM_ARRAYSIZE(SoundGenerationModes));
 					ImGui::SliderInt("Hang alapfrekvencia", &variables.freq, 0, 6000);
 					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &variables.allowCloseNeighbours);
 				}

@@ -10,6 +10,7 @@ struct Variables {
 
 	//Sound variables
 	const int FS = 44100;
+	int soundGenerationMode = 0;
 	int freq = 440;
 	bool allowCloseNeighbours = true;
 
