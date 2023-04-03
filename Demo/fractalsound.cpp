@@ -151,9 +151,11 @@ bool FractalSound::FillBufferAdditive(Variables variables, float buff[])
 		i++;
 	}
 
-	for (int j = 0; j < len; j++) {
-		buff[2 * j] = buff[2 * j] / i;
-		buff[2 * j + 1] = buff[2 * j + 1] / i;
+	if (variables.normalizeSound) {
+		for (int j = 0; j < len; j++) {
+			buff[2 * j] = buff[2 * j] / i;
+			buff[2 * j + 1] = buff[2 * j + 1] / i;
+		}
 	}
 
 	return true;

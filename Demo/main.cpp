@@ -164,6 +164,7 @@ int main(int argc, char* args[])
 					ImGui::Combo("Hanggenerálás módja", &variables.soundGenerationMode, SoundGenerationModes, IM_ARRAYSIZE(SoundGenerationModes));
 					ImGui::SliderInt("Hang alapfrekvencia", &variables.freq, 0, 6000);
 					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &variables.allowCloseNeighbours);
+					ImGui::Checkbox("Hangerő normalizálása", &variables.normalizeSound);
 				}
 			}
 			ImGui::End();
