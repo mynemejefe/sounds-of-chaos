@@ -2,6 +2,7 @@
 #include <SDL/SDL_mixer.h>
 #include <thread>
 #include <synchapi.h>
+#include "fractalutility.h"
 
 FractalSound::FractalSound(int fs) : fs_(fs) {
 	if (-1 == Mix_OpenAudio(fs, AUDIO_F32, 2, 512))
@@ -79,12 +80,12 @@ bool FractalSound::FillBufferSimple(Variables variables, float buff[]) {
 		switch (variables.fractalType) {
 		case 0:
 			//mandelbrot
-			z = VecPow(z, variables.power) + c;
+			z = FractalUtility::VecPow(z, variables.power) + c;
 			break;
 		case 1:
 			//burning ship
 			glm::vec2 z_abs = glm::abs(z);
-			z = VecPow(z_abs, variables.power) + c;
+			z = FractalUtility::VecPow(z_abs, variables.power) + c;
 			break;
 		}
 		
@@ -131,12 +132,12 @@ bool FractalSound::FillBufferAdditive(Variables variables, float buff[])
 		switch (variables.fractalType) {
 		case 0:
 			//mandelbrot
-			z = VecPow(z, variables.power) + c;
+			z = FractalUtility::VecPow(z, variables.power) + c;
 			break;
 		case 1:
 			//burning ship
 			glm::vec2 z_abs = glm::abs(z);
-			z = VecPow(z_abs, variables.power) + c;
+			z = FractalUtility::VecPow(z_abs, variables.power) + c;
 			break;
 		}
 
@@ -159,20 +160,6 @@ bool FractalSound::FillBufferAdditive(Variables variables, float buff[])
 	}
 
 	return true;
-}
-
-glm::vec2 FractalSound::Mul(glm::vec2 u, glm::vec2 v) {
-	return glm::vec2(u.x * v.x - u.y * v.y, u.x * v.y + u.y * v.x);
-}
-
-glm::vec2 FractalSound::VecPow(glm::vec2 u, int pow) {
-	int i = 1;
-	glm::vec2 v = u;
-	while (i < pow) {
-		v = Mul(v, u);
-		i++;
-	}
-	return v;
 }
 
 Mix_Chunk* FractalSound::CreateMixChunk() {

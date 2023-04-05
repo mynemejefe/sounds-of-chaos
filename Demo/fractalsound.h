@@ -20,8 +20,6 @@ private:
 
 	bool FillBufferSimple(Variables variables, float buff[]);
 	bool FillBufferAdditive(Variables variables, float buff[]);
-	glm::vec2 Mul(glm::vec2 u, glm::vec2 v);
-	glm::vec2 VecPow(glm::vec2 u, int pow);
 
 	void Mix_FreeChunk(Mix_Chunk* chunk);
 
