@@ -14,10 +14,10 @@ glm::vec2 FractalUtility::VecPow(glm::vec2 u, int pow) {
 	return v;
 }
 
-glm::vec2* FractalUtility::FillArrayWithFractalIterations(Variables variables, int length = -1)
+glm::vec2* FractalUtility::FillArrayWithFractalIterations(Variables variables, int length)
 {
-	int i = 0, max_iterations = length == -1 ? variables.maxIterations : length;
-	glm::vec2* positions = new glm::vec2[max_iterations];
+	int i = 0;
+	glm::vec2* positions = new glm::vec2[length];
 	glm::vec2 z = variables.lastClickPos, c = z;
 
 	while (glm::length(z) <= 2 && i < length) {
