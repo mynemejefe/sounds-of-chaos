@@ -17,10 +17,10 @@ void FractalSound::PlaySoundAtPos(Variables variables)
 	
 	bool partOfFractal;
 	if (variables.soundGenerationMode == 0) {
-		partOfFractal = FillBufferAdditive(variables, (float*)chunk->abuf);
+		partOfFractal = FillBufferSimple(variables, (float*)chunk->abuf);
 	}
 	else {
-		partOfFractal = FillBufferSimple(variables, (float*)chunk->abuf);
+		partOfFractal = FillBufferAdditive(variables, (float*)chunk->abuf);
 	}
 
 	if (!variables.allowCloseNeighbours && !partOfFractal) {
