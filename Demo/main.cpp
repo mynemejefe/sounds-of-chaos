@@ -30,17 +30,11 @@ int main(int argc, char* args[])
 	int w = df::Backbuffer.getWidth(), h = df::Backbuffer.getHeight();
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
-	struct PianoKey {
-		Mix_Chunk* soundToPlay;
-		bool isFilled = false;
-	};
-
 	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fraktál" };
 	const char* SoundGenerationModes[]{ "Egyszerű", "Additív" };
 
 	Variables variables;
 	FractalSound* fractalSound = new FractalSound(variables.FS);
-	PianoKey pianoKeys[10]{};
 
 #ifdef TESTING
 	FractalSoundTester* tester = new FractalSoundTester(*fractalSound);
@@ -84,44 +78,15 @@ int main(int argc, char* args[])
 		}, 6);
 	sam.AddKeyDown([&](SDL_KeyboardEvent kb)
 		{
-			int pianoKey = -1;
-			switch (kb.keysym.sym)
-			{
-			case SDLK_LSHIFT:	variables.isShiftHeldDown = true; break;
-			case SDLK_0:		pianoKey = 0; break;
-			case SDLK_1:		pianoKey = 1; break;
-			case SDLK_2:		pianoKey = 2; break;
-			case SDLK_3:		pianoKey = 3; break;
-			case SDLK_4:		pianoKey = 4; break;
-			case SDLK_5:		pianoKey = 5; break;
-			case SDLK_6:		pianoKey = 6; break;
-			case SDLK_7:		pianoKey = 7; break;
-			case SDLK_8:		pianoKey = 8; break;
-			case SDLK_9:		pianoKey = 9; break;
-			}
+			int key = kb.keysym.sym;
 
-			if (pianoKey != -1)
-			{
-				PianoKey* key = &pianoKeys[pianoKey];
-				// Shift held down		= record new sound
-				// Shift not held down	= play recorded sound
-				if (variables.isShiftHeldDown)
-				{
-					//Freeing up unused buffers
-					if (key->isFilled) {
-						delete(key->soundToPlay->abuf);
-					}
-					else {
-						key->soundToPlay = fractalSound->CreateMixChunk();
-					}
-					key->soundToPlay->abuf = (Uint8*)fractalSound->CreateSoundBufferFromLastPos(variables);
-					key->isFilled = true;
-					
-				}
-				else if (key->isFilled)
-				{
-					fractalSound->PlaySoundFromMixChunk(key->soundToPlay, false);
-				}
+			if (key == SDLK_LSHIFT) {
+				variables.isShiftHeldDown = true;
+			}
+			
+			if (key >= SDLK_0 && key <= SDLK_9) {
+				int pianoKey = key - SDLK_0;
+				fractalSound->ModifyPianoKey(variables, pianoKey);
 			}
 
 			return true;

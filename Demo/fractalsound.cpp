@@ -47,6 +47,33 @@ float* FractalSound::CreateSoundBufferFromLastPos(Variables variables)
 	return soundBuffer;
 }
 
+void FractalSound::ModifyPianoKey(Variables variables, int n)
+{
+	if (n < 0 || n >= 10)
+		return;
+
+	auto key = &pianoKeys[n];
+	// Shift held down		= record new sound
+	// Shift not held down	= play recorded sound
+	if (variables.isShiftHeldDown)
+	{
+		//Freeing up unused buffers
+		if (key->isFilled) {
+			delete(key->soundToPlay->abuf);
+		}
+		else {
+			key->soundToPlay = CreateMixChunk();
+			key->isFilled = true;
+		}
+		key->soundToPlay->abuf = (Uint8*)CreateSoundBufferFromLastPos(variables);
+
+	}
+	else if (key->isFilled)
+	{
+		PlaySoundFromMixChunk(key->soundToPlay, false);
+	}
+}
+
 void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse)
 {
 	Mix_Chunk* chunk = chunkToPlay;
