@@ -5,8 +5,9 @@
 class FractalSoundTester
 {
 public:
-	FractalSoundTester(FractalSound& testedClass) : _testedClass(testedClass) {};
-	void FractalSoundConstructor();
+	void RunAllTests();
+	bool TestConstructor();
+	bool TestPianoKey();
 
 private:
 	FractalSound _testedClass;

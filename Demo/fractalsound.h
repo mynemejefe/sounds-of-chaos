@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include "variables.h"
 
+// #define TESTING
+
 struct PianoKey {
 	Mix_Chunk* soundToPlay;
 	bool isFilled = false;
@@ -29,8 +31,6 @@ private:
 	bool FillBufferSimple(Variables variables, float buff[]);
 	bool FillBufferAdditive(Variables variables, float buff[]);
 
-#ifdef TESTING
 	friend class FractalSoundTester;
-#endif
 };
 

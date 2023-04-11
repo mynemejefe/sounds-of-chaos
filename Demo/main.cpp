@@ -6,8 +6,6 @@
 #include "variables.h"
 #include "fractalsoundtester.h"
 
-// #define TESTING
-
 int main(int argc, char* args[])
 {
 	df::Sample sam("Sounds of chaos", 800, 800, df::Sample::FLAGS::DEFAULT);
@@ -37,8 +35,8 @@ int main(int argc, char* args[])
 	FractalSound* fractalSound = new FractalSound(variables.FS);
 
 #ifdef TESTING
-	FractalSoundTester* tester = new FractalSoundTester(*fractalSound);
-	tester->FractalSoundConstructor();
+	FractalSoundTester* tester = new FractalSoundTester();
+	tester->RunAllTests();
 #else
 
 	sam.AddMouseMotion([&](SDL_MouseMotionEvent e) { return true; }, 6);
