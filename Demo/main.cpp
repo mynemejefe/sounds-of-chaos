@@ -84,7 +84,7 @@ int main(int argc, char* args[])
 			
 			if (key >= SDLK_0 && key <= SDLK_9) {
 				int pianoKey = key - SDLK_0;
-				fractalSound->ModifyPianoKey(variables, pianoKey);
+				fractalSound->UsePianoKey(variables, pianoKey);
 			}
 
 			return true;

@@ -10,6 +10,6 @@ public:
 	bool TestPianoKey();
 
 private:
-	FractalSound _testedClass;
+	FractalSound* _fractalSound;
 };
 

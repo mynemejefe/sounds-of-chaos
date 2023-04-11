@@ -58,17 +58,116 @@ void FractalSoundTester::RunAllTests() {
     
 }
 
-bool FractalSoundTester::TestConstructor() {
-    int FS = 10;
-    FractalSound* fractalSound = new FractalSound(FS);
+bool FractalSoundTester::TestConstructor()
+{
+	std::cout << "Testing constructor..." << std::endl;
 
-    if (fractalSound->GetFs() == FS) {
-        std::cout << "Test run successfully" << std::endl;
-    }
+	ASSERT_EQ(_fractalSound, NULL);
 
-    fractalSound->~FractalSound();
+	int FS = 10;
+	_fractalSound = new FractalSound(FS);
+
+	ASSERT_NE(_fractalSound, NULL);
+	ASSERT_EQ(_fractalSound->GetFs(), FS);
+
+	_fractalSound->~FractalSound();
+
+	return true;
 }
 
 bool FractalSoundTester::TestPianoKey() {
+	std::cout << "Testing PianoKey..." << std::endl;
 
+	_fractalSound = new FractalSound(44100);
+
+	for (const auto& key : _fractalSound->pianoKeys) {
+		ASSERT_EQ(key.soundToPlay, NULL);
+		ASSERT_FALSE(key.isFilled);
+	}
+
+	Variables variables{};
+	variables.lastClickPos = glm::vec2(1, 0);
+	variables.isShiftHeldDown = true;
+
+	//Invalid arguments for n
+	ASSERT_FALSE(_fractalSound->UsePianoKey(variables, -1));
+	ASSERT_FALSE(_fractalSound->UsePianoKey(variables, 10));
+	ASSERT_FALSE(_fractalSound->UsePianoKey(variables, INT_MAX));
+
+	for (const auto& key : _fractalSound->pianoKeys) {
+		ASSERT_EQ(key.soundToPlay, NULL);
+		ASSERT_FALSE(key.isFilled);
+	}
+
+	//Filling only the first key
+	ASSERT_TRUE(_fractalSound->UsePianoKey(variables, 0));
+
+	bool first = true;
+	for (const auto& key : _fractalSound->pianoKeys) {
+		if (first) {
+			ASSERT_NE(key.soundToPlay, NULL); // needs assert
+			ASSERT_TRUE(key.isFilled);
+			ASSERT_NE(key.soundToPlay->abuf, NULL); // needs assert
+
+			auto actualBuff = key.soundToPlay->abuf;
+			auto expectedBuff = (Uint8*)_fractalSound->CreateSoundBufferFromLastPos(variables);
+			for (int i = 0; i < key.soundToPlay->alen; i++) {
+				ASSERT_EQ(actualBuff[i], expectedBuff[i]);
+			}
+
+			first = false;
+		}
+		else {
+			ASSERT_EQ(key.soundToPlay, NULL);
+			ASSERT_FALSE(key.isFilled);
+		}
+	}
+
+	//Playing an already recorded key
+	variables.isShiftHeldDown = false;
+	ASSERT_TRUE(_fractalSound->UsePianoKey(variables, 0));
+
+	first = true;
+	for (const auto& key : _fractalSound->pianoKeys) {
+		if (first) {
+			ASSERT_NE(key.soundToPlay, NULL); // needs assert
+			ASSERT_TRUE(key.isFilled);
+			ASSERT_NE(key.soundToPlay->abuf, NULL); // needs assert
+
+			auto actualBuff = key.soundToPlay->abuf;
+			auto expectedBuff = (Uint8*)_fractalSound->CreateSoundBufferFromLastPos(variables);
+			for (int i = 0; i < key.soundToPlay->alen; i++) {
+				ASSERT_EQ(actualBuff[i], expectedBuff[i]);
+			}
+
+			first = false;
+		}
+		else {
+			ASSERT_EQ(key.soundToPlay, NULL);
+			ASSERT_FALSE(key.isFilled);
+		}
+	}
+
+	//Filling all keys
+	variables.isShiftHeldDown = true;
+	variables.lastClickPos = glm::vec2(-0.058, -0.81);
+	for (int i = 1; i < 10; i++) {
+		ASSERT_TRUE(_fractalSound->UsePianoKey(variables, i));
+	}
+
+	for (const auto& key : _fractalSound->pianoKeys) {
+		ASSERT_NE(key.soundToPlay, NULL); // needs assert
+		ASSERT_TRUE(key.isFilled);
+		ASSERT_NE(key.soundToPlay->abuf, NULL); // needs assert
+
+		auto actualBuff = key.soundToPlay->abuf;
+		auto expectedBuff = (Uint8*)_fractalSound->CreateSoundBufferFromLastPos(variables);
+		for (int i = 0; i < key.soundToPlay->alen; i++) {
+			ASSERT_EQ(actualBuff[i], expectedBuff[i]);
+		}
+	}
+
+	_fractalSound->~FractalSound();
+
+	return true;
 }

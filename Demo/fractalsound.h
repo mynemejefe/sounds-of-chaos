@@ -15,10 +15,10 @@ class FractalSound
 {
 public:
 	FractalSound(int fs);
-	~FractalSound() {};
+	~FractalSound();
 	void PlaySoundAtPos(Variables variables);
 	float* CreateSoundBufferFromLastPos(Variables variables);
-	void ModifyPianoKey(Variables variables, int n);
+	bool UsePianoKey(Variables variables, int n);
 	void PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse);
 
 	inline const int GetFs() { return fs_; };
