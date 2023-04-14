@@ -42,10 +42,10 @@ float* FractalSound::CreateSoundBufferFromLastPos(Variables variables)
 	float* soundBuffer = new float[2 * variables.FS];
 
 	if (variables.soundGenerationMode == 0) {
-		FillBufferAdditive(variables, soundBuffer);
-	}
-	else {
 		FillBufferSimple(variables, soundBuffer);
+	}
+	else if (variables.soundGenerationMode == 1) {
+		FillBufferAdditive(variables, soundBuffer);
 	}
 
 	return soundBuffer;
