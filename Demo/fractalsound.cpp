@@ -44,7 +44,7 @@ float* FractalSound::CreateSoundBufferFromLastPos(InputVars inputVars, FractalVa
 	if (soundVars.soundGenerationMode == 0) {
 		FillBufferSimple(inputVars, fractalVars, soundVars, soundBuffer);
 	}
-	else if (soundVars.soundGenerationMode == 1) {
+	else {
 		FillBufferAdditive(inputVars, fractalVars, soundVars, soundBuffer);
 	}
 
@@ -83,6 +83,9 @@ bool FractalSound::UsePianoKey(InputVars inputVars, FractalVars fractalVars, Sou
 
 void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse)
 {
+#ifdef TESTING
+	return;
+#elif
 	Mix_Chunk* chunk = chunkToPlay;
 
 	std::thread play([this, chunk, freeUpAfterUse]() {
@@ -95,6 +98,7 @@ void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfte
 	});
 
 	play.detach();
+#endif
 }
 
 bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]) {

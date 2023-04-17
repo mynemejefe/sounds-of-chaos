@@ -5,9 +5,9 @@
     if(actual != expected){                                         \
         std::cout << "Assert failed while running " << __func__     \
                   << ", at line " << __LINE__ << std::endl          \
-                  << "Expected: " << expected                       \
+                  << "Expected: " << int(expected)                  \
                   << "(" << #expected << ")" << std::endl           \
-                  << "Actual: " << actual                           \
+                  << "Actual: " << int(actual)                      \
                   << "(" << #actual << ")" << std::endl;            \
         return false;                                               \
     }
@@ -16,9 +16,9 @@
     if(actual == expected){                                         \
         std::cout << "Assert failed while running " << __func__     \
                   << ", at line " << __LINE__ << std::endl          \
-                  << "Expected: " << expected                       \
+                  << "Expected: " << int(expected)                  \
                   << "(" << #expected << ")" << std::endl           \
-                  << "Actual: " << actual                           \
+                  << "Actual: " << int(actual)                      \
                   << "(" << #actual << ")" << std::endl;            \
         return false;                                               \
     }
@@ -42,11 +42,11 @@
     }
 
 void FractalSoundTester::RunAllTests() {
-    bool failed = false;
-
     std::cout << "\nRunning all tests..." << std::endl;
-    failed = failed || TestConstructor();
-    failed = failed || TestPianoKey();
+
+	bool failed = false;
+    failed = failed || !TestConstructor();
+    failed = failed || !TestPianoKey();
 
     std::cout << "Testing completed. ";
     if (failed) {
@@ -153,7 +153,7 @@ bool FractalSoundTester::TestPianoKey() {
 	//Filling all keys
 	input.isShiftHeldDown = true;
 	input.lastClickPos = glm::vec2(-0.058, -0.81);
-	for (int i = 1; i < 10; i++) {
+	for (int i = 0; i < 10; i++) {
 		ASSERT_TRUE(_fractalSound->UsePianoKey(input, fractal, sound, i));
 	}
 
