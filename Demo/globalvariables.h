@@ -1,24 +1,28 @@
 #pragma once
 #include <glm/ext/vector_float2.hpp>
 
-struct Variables {
+const int FS = 44100;
 
-	//General variables
+struct InputVars {
 	glm::vec2 lastClickPos{ 0,0 };
 	float zoomValue = 0.5f;
 	bool isShiftHeldDown = false;
+};
 
-	//Sound variables
-	const int FS = 44100;
+struct FractalVars {
+	int maxIterations = 2500;
+	int fractalType = 0;
+	int power = 2;
+};
+
+struct SoundVars {	
 	int soundGenerationMode = 1;
 	int freq = 440;
 	bool allowCloseNeighbours = true;
 	bool normalizeSound = true;
+};
 
-	//Graphic variables
-	int maxIterations = 2500;
-	int fractalType = 0;
-	int power = 2;
+struct GraphicVars {
 	float insideColor[3] = { 0.9f,0.5f,0.3f };
 	float outsideColor[3] = { 0.9f,0.5f,0.3f };
 	float backgroundBrightness = 1;

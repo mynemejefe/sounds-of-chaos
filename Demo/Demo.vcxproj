@@ -145,7 +145,7 @@
     <ClInclude Include="fractalutility.h" />
     <ClInclude Include="fractalsound.h" />
     <ClInclude Include="fractalsoundtester.h" />
-    <ClInclude Include="variables.h" />
+    <ClInclude Include="globalvariables.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

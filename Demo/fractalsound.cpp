@@ -15,19 +15,19 @@ FractalSound::~FractalSound() {
 	Mix_CloseAudio();
 }
 
-void FractalSound::PlaySoundAtPos(Variables variables)
+void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars)
 {
 	Mix_Chunk* chunk = CreateMixChunk();
 	
 	bool partOfFractal;
-	if (variables.soundGenerationMode == 0) {
-		partOfFractal = FillBufferSimple(variables, (float*)chunk->abuf);
+	if (soundVars.soundGenerationMode == 0) {
+		partOfFractal = FillBufferSimple(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
 	}
 	else {
-		partOfFractal = FillBufferAdditive(variables, (float*)chunk->abuf);
+		partOfFractal = FillBufferAdditive(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
 	}
 
-	if (!variables.allowCloseNeighbours && !partOfFractal) {
+	if (!soundVars.allowCloseNeighbours && !partOfFractal) {
 		FractalSound::Mix_FreeChunk(chunk);
 		return;
 	}
@@ -36,22 +36,22 @@ void FractalSound::PlaySoundAtPos(Variables variables)
 }
 
 // Make sure to deallocate the return value when you don't need it anymore
-float* FractalSound::CreateSoundBufferFromLastPos(Variables variables)
+float* FractalSound::CreateSoundBufferFromLastPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars)
 {
 	//A Mix_Chunk's buffer length is 4*2*FS but its type is Uint8 (1 byte), float is 4 bytes
-	float* soundBuffer = new float[2 * variables.FS];
+	float* soundBuffer = new float[2 * FS];
 
-	if (variables.soundGenerationMode == 0) {
-		FillBufferSimple(variables, soundBuffer);
+	if (soundVars.soundGenerationMode == 0) {
+		FillBufferSimple(inputVars, fractalVars, soundVars, soundBuffer);
 	}
-	else if (variables.soundGenerationMode == 1) {
-		FillBufferAdditive(variables, soundBuffer);
+	else if (soundVars.soundGenerationMode == 1) {
+		FillBufferAdditive(inputVars, fractalVars, soundVars, soundBuffer);
 	}
 
 	return soundBuffer;
 }
 
-bool FractalSound::UsePianoKey(Variables variables, int n)
+bool FractalSound::UsePianoKey(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, int n)
 {
 	if (n < 0 || n >= 10)
 		return false;
@@ -59,7 +59,7 @@ bool FractalSound::UsePianoKey(Variables variables, int n)
 	auto key = &pianoKeys[n];
 	// Shift held down		= record new sound
 	// Shift not held down	= play recorded sound
-	if (variables.isShiftHeldDown)
+	if (inputVars.isShiftHeldDown)
 	{
 		//Freeing up unused buffers
 		if (key->isFilled) {
@@ -69,7 +69,7 @@ bool FractalSound::UsePianoKey(Variables variables, int n)
 			key->soundToPlay = CreateMixChunk();
 			key->isFilled = true;
 		}
-		key->soundToPlay->abuf = (Uint8*)CreateSoundBufferFromLastPos(variables);
+		key->soundToPlay->abuf = (Uint8*)CreateSoundBufferFromLastPos(inputVars, fractalVars, soundVars);
 		return true;
 	}
 	if (key->isFilled)
@@ -97,29 +97,29 @@ void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfte
 	play.detach();
 }
 
-bool FractalSound::FillBufferSimple(Variables variables, float buff[]) {
-	glm::vec2 z = variables.lastClickPos;
-	glm::vec2 c = variables.lastClickPos;
+bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]) {
+	glm::vec2 z = inputVars.lastClickPos;
+	glm::vec2 c = inputVars.lastClickPos;
 	int i = 0, max_iterations = 2500;
 	int len = fs_;
 	bool partOfTheSet = false;
 
 	while (glm::length(z) <= 2 && i < max_iterations && i < len) {
 		float length = glm::length(z); //abs value of point at the current iteration
-		float sin = sinf(2 * (float)M_PI * variables.freq / fs_ * i) / 4; //sine wave
+		float sin = sinf(2 * (float)M_PI * soundVars.freq / fs_ * i) / 4; //sine wave
 
 		buff[2 * i] = sin * length; //left channel
 		buff[2 * i + 1] = sin * length; //right channel
 
-		switch (variables.fractalType) {
+		switch (fractalVars.fractalType) {
 		case 0:
 			//mandelbrot
-			z = FractalUtility::VecPow(z, variables.power) + c;
+			z = FractalUtility::VecPow(z, fractalVars.power) + c;
 			break;
 		case 1:
 			//burning ship
 			glm::vec2 z_abs = glm::abs(z);
-			z = FractalUtility::VecPow(z_abs, variables.power) + c;
+			z = FractalUtility::VecPow(z_abs, fractalVars.power) + c;
 			break;
 		}
 		
@@ -145,10 +145,10 @@ bool FractalSound::FillBufferSimple(Variables variables, float buff[]) {
 	return partOfTheSet;
 }
 
-bool FractalSound::FillBufferAdditive(Variables variables, float buff[])
+bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[])
 {
-	glm::vec2 z = variables.lastClickPos;
-	glm::vec2 c = variables.lastClickPos;
+	glm::vec2 z = inputVars.lastClickPos;
+	glm::vec2 c = inputVars.lastClickPos;
 	int i = 0, max_iterations = 100;
 	int len = fs_;
 	bool partOfTheSet = false;
@@ -157,28 +157,28 @@ bool FractalSound::FillBufferAdditive(Variables variables, float buff[])
 	float sin;
 
 	for (int j = 0; j < len; j++) {
-		sin = sinf(2 * (float)M_PI * variables.freq * length / fs_ * j) / 4;
+		sin = sinf(2 * (float)M_PI * soundVars.freq * length / fs_ * j) / 4;
 		buff[2 * j] = sin; //left channel
 		buff[2 * j + 1] = sin; //right channel
 	}
 
 	while (glm::length(z) <= 2 && i < max_iterations && i < len) {
-		switch (variables.fractalType) {
+		switch (fractalVars.fractalType) {
 		case 0:
 			//mandelbrot
-			z = FractalUtility::VecPow(z, variables.power) + c;
+			z = FractalUtility::VecPow(z, fractalVars.power) + c;
 			break;
 		case 1:
 			//burning ship
 			glm::vec2 z_abs = glm::abs(z);
-			z = FractalUtility::VecPow(z_abs, variables.power) + c;
+			z = FractalUtility::VecPow(z_abs, fractalVars.power) + c;
 			break;
 		}
 
 		length = glm::length(z);
 
 		for (int j = i; j < len-i; j++) {
-			sin = sinf(2 * (float)M_PI * variables.freq * length / fs_ * j) / 4;
+			sin = sinf(2 * (float)M_PI * soundVars.freq * length / fs_ * j) / 4;
 			buff[2 * j] = buff[2 * j] + sin;
 			buff[2 * j + 1] = buff[2 * j + 1] + sin;
 		}
@@ -186,7 +186,7 @@ bool FractalSound::FillBufferAdditive(Variables variables, float buff[])
 		i++;
 	}
 
-	if (variables.normalizeSound) {
+	if (soundVars.normalizeSound) {
 		for (int j = 0; j < len; j++) {
 			buff[2 * j] = buff[2 * j] / i;
 			buff[2 * j + 1] = buff[2 * j + 1] / i;

@@ -2,7 +2,7 @@
 
 #include <SDL/SDL_mixer.h>
 #include <glm/glm.hpp>
-#include "variables.h"
+#include "globalvariables.h"
 
 // #define TESTING
 
@@ -16,9 +16,9 @@ class FractalSound
 public:
 	FractalSound(int fs);
 	~FractalSound();
-	void PlaySoundAtPos(Variables variables);
-	float* CreateSoundBufferFromLastPos(Variables variables);
-	bool UsePianoKey(Variables variables, int n);
+	void PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars);
+	float* CreateSoundBufferFromLastPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars);
+	bool UsePianoKey(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, int n);
 	void PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse);
 
 	inline const int GetFs() { return fs_; };
@@ -28,8 +28,8 @@ private:
 
 	Mix_Chunk* CreateMixChunk();
 	void Mix_FreeChunk(Mix_Chunk* chunk);
-	bool FillBufferSimple(Variables variables, float buff[]);
-	bool FillBufferAdditive(Variables variables, float buff[]);
+	bool FillBufferSimple(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]);
+	bool FillBufferAdditive(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]);
 
 	friend class FractalSoundTester;
 };

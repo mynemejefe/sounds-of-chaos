@@ -14,23 +14,23 @@ glm::vec2 FractalUtility::VecPow(glm::vec2 u, int pow) {
 	return v;
 }
 
-glm::vec2* FractalUtility::FillArrayWithFractalIterations(Variables variables, int length)
+glm::vec2* FractalUtility::FillArrayWithFractalIterations(InputVars inputVars, FractalVars soundVars, int length)
 {
 	int i = 0;
 	glm::vec2* positions = new glm::vec2[length];
-	glm::vec2 z = variables.lastClickPos, c = z;
+	glm::vec2 z = inputVars.lastClickPos, c = z;
 
 	while (glm::length(z) <= 2 && i < length) {
 
-		switch (variables.fractalType) {
+		switch (soundVars.fractalType) {
 		case 0:
 			//mandelbrot
-			z = VecPow(z, variables.power) + c;
+			z = VecPow(z, soundVars.power) + c;
 			break;
 		case 1:
 			//burning ship
 			glm::vec2 z_abs = glm::abs(z);
-			z = VecPow(z_abs, variables.power) + c;
+			z = VecPow(z_abs, soundVars.power) + c;
 			break;
 		}
 

@@ -31,7 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fractalsound.h" />
-    <ClInclude Include="variables.h" />
+    <ClInclude Include="globalvariables.h" />
     <ClInclude Include="fractalsoundtester.h" />
     <ClInclude Include="fractalutility.h" />
   </ItemGroup>
