@@ -62,15 +62,13 @@ bool FractalSoundTester::TestConstructor()
 {
 	std::cout << "Testing constructor..." << std::endl;
 
-	ASSERT_EQ(_fractalSound, NULL);
-
 	int FS = 10;
-	_fractalSound = new FractalSound(FS);
+	FractalSound* fractalSound = new FractalSound(FS);
 
-	ASSERT_NE(_fractalSound, NULL);
-	ASSERT_EQ(_fractalSound->GetFs(), FS);
+	ASSERT_NE(fractalSound, NULL);
+	ASSERT_EQ(fractalSound->GetFs(), FS);
 
-	_fractalSound->~FractalSound();
+	fractalSound->~FractalSound();
 
 	return true;
 }
@@ -78,9 +76,9 @@ bool FractalSoundTester::TestConstructor()
 bool FractalSoundTester::TestPianoKey() {
 	std::cout << "Testing PianoKey..." << std::endl;
 
-	_fractalSound = new FractalSound(44100);
+	FractalSound* fractalSound = new FractalSound(44100);
 
-	for (const auto& key : _fractalSound->pianoKeys) {
+	for (const auto& key : fractalSound->pianoKeys) {
 		ASSERT_EQ(key.soundToPlay, NULL);
 		ASSERT_FALSE(key.isFilled);
 	}
@@ -92,27 +90,27 @@ bool FractalSoundTester::TestPianoKey() {
 	input.isShiftHeldDown = true;
 
 	//Invalid arguments for n
-	ASSERT_FALSE(_fractalSound->UsePianoKey(input, fractal, sound, -1));
-	ASSERT_FALSE(_fractalSound->UsePianoKey(input, fractal, sound, 10));
-	ASSERT_FALSE(_fractalSound->UsePianoKey(input, fractal, sound, INT_MAX));
+	ASSERT_FALSE(fractalSound->UsePianoKey(input, fractal, sound, -1));
+	ASSERT_FALSE(fractalSound->UsePianoKey(input, fractal, sound, 10));
+	ASSERT_FALSE(fractalSound->UsePianoKey(input, fractal, sound, INT_MAX));
 
-	for (const auto& key : _fractalSound->pianoKeys) {
+	for (const auto& key : fractalSound->pianoKeys) {
 		ASSERT_EQ(key.soundToPlay, NULL);
 		ASSERT_FALSE(key.isFilled);
 	}
 
 	//Filling only the first key
-	ASSERT_TRUE(_fractalSound->UsePianoKey(input, fractal, sound, 0));
+	ASSERT_TRUE(fractalSound->UsePianoKey(input, fractal, sound, 0));
 
 	bool first = true;
-	for (const auto& key : _fractalSound->pianoKeys) {
+	for (const auto& key : fractalSound->pianoKeys) {
 		if (first) {
 			ASSERT_NE(key.soundToPlay, NULL); // needs assert
 			ASSERT_TRUE(key.isFilled);
 			ASSERT_NE(key.soundToPlay->abuf, NULL); // needs assert
 
 			auto actualBuff = key.soundToPlay->abuf;
-			auto expectedBuff = (Uint8*)_fractalSound->CreateSoundBufferFromLastPos(input, fractal, sound);
+			auto expectedBuff = (Uint8*)fractalSound->CreateSoundBufferFromLastPos(input, fractal, sound);
 			for (int i = 0; i < key.soundToPlay->alen; i++) {
 				ASSERT_EQ(actualBuff[i], expectedBuff[i]);
 			}
@@ -127,17 +125,17 @@ bool FractalSoundTester::TestPianoKey() {
 
 	//Playing an already recorded key
 	input.isShiftHeldDown = false;
-	ASSERT_TRUE(_fractalSound->UsePianoKey(input, fractal, sound, 0));
+	ASSERT_TRUE(fractalSound->UsePianoKey(input, fractal, sound, 0));
 
 	first = true;
-	for (const auto& key : _fractalSound->pianoKeys) {
+	for (const auto& key : fractalSound->pianoKeys) {
 		if (first) {
 			ASSERT_NE(key.soundToPlay, NULL); // needs assert
 			ASSERT_TRUE(key.isFilled);
 			ASSERT_NE(key.soundToPlay->abuf, NULL); // needs assert
 
 			auto actualBuff = key.soundToPlay->abuf;
-			auto expectedBuff = (Uint8*)_fractalSound->CreateSoundBufferFromLastPos(input, fractal, sound);
+			auto expectedBuff = (Uint8*)fractalSound->CreateSoundBufferFromLastPos(input, fractal, sound);
 			for (int i = 0; i < key.soundToPlay->alen; i++) {
 				ASSERT_EQ(actualBuff[i], expectedBuff[i]);
 			}
@@ -154,22 +152,22 @@ bool FractalSoundTester::TestPianoKey() {
 	input.isShiftHeldDown = true;
 	input.lastClickPos = glm::vec2(-0.058, -0.81);
 	for (int i = 0; i < 10; i++) {
-		ASSERT_TRUE(_fractalSound->UsePianoKey(input, fractal, sound, i));
+		ASSERT_TRUE(fractalSound->UsePianoKey(input, fractal, sound, i));
 	}
 
-	for (const auto& key : _fractalSound->pianoKeys) {
+	for (const auto& key : fractalSound->pianoKeys) {
 		ASSERT_NE(key.soundToPlay, NULL); // needs assert
 		ASSERT_TRUE(key.isFilled);
 		ASSERT_NE(key.soundToPlay->abuf, NULL); // needs assert
 
 		auto actualBuff = key.soundToPlay->abuf;
-		auto expectedBuff = (Uint8*)_fractalSound->CreateSoundBufferFromLastPos(input, fractal, sound);
+		auto expectedBuff = (Uint8*)fractalSound->CreateSoundBufferFromLastPos(input, fractal, sound);
 		for (int i = 0; i < key.soundToPlay->alen; i++) {
 			ASSERT_EQ(actualBuff[i], expectedBuff[i]);
 		}
 	}
 
-	_fractalSound->~FractalSound();
+	fractalSound->~FractalSound();
 
 	return true;
 }
