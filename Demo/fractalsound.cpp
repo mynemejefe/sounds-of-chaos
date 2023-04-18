@@ -85,7 +85,7 @@ void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfte
 {
 #ifdef TESTING
 	return;
-#elif
+#else
 	Mix_Chunk* chunk = chunkToPlay;
 
 	std::thread play([this, chunk, freeUpAfterUse]() {
@@ -102,36 +102,23 @@ void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfte
 }
 
 bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]) {
-	glm::vec2 z = inputVars.lastClickPos;
-	glm::vec2 c = inputVars.lastClickPos;
-	int i = 0, max_iterations = 2500;
-	int len = fs_;
+	int maxIterations = fractalVars.maxIterations;
+	int i = 0, len = fs_;
+	float sinConst = 2 * (float)M_PI * soundVars.freq / fs_;
 	bool partOfTheSet = false;
 
-	while (glm::length(z) <= 2 && i < max_iterations && i < len) {
-		float length = glm::length(z); //abs value of point at the current iteration
-		float sin = sinf(2 * (float)M_PI * soundVars.freq / fs_ * i) / 4; //sine wave
+	auto distances = FractalUtility::MakeVectorWithIterationDistances(inputVars, fractalVars);
 
-		buff[2 * i] = sin * length; //left channel
-		buff[2 * i + 1] = sin * length; //right channel
-
-		switch (fractalVars.fractalType) {
-		case 0:
-			//mandelbrot
-			z = FractalUtility::VecPow(z, fractalVars.power) + c;
-			break;
-		case 1:
-			//burning ship
-			glm::vec2 z_abs = glm::abs(z);
-			z = FractalUtility::VecPow(z_abs, fractalVars.power) + c;
-			break;
-		}
-		
-		i++;
+	if (distances.size() == maxIterations) {
+		partOfTheSet = true;
 	}
 
-	if (i == max_iterations) {
-		partOfTheSet = true;
+	for (i = 0; i < distances.size(); i++)
+	{
+		float sin = sinf(sinConst * i) * 0.25;
+
+		buff[2 * i] = sin * distances[i]; //left channel
+		buff[2 * i + 1] = sin * distances[i]; //right channel
 	}
 
 	if (i != len && i != 0) {
@@ -151,43 +138,31 @@ bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars
 
 bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[])
 {
-	glm::vec2 z = inputVars.lastClickPos;
-	glm::vec2 c = inputVars.lastClickPos;
-	int i = 0, max_iterations = 100;
-	int len = fs_;
+	int maxIterations = 100;
+	int i = 0, len = fs_;
+	float sin, sinConst = 2 * (float)M_PI * soundVars.freq / fs_;
 	bool partOfTheSet = false;
 
-	float length = glm::length(z); //abs value of point at the current iteration
-	float sin;
+	auto distances = FractalUtility::MakeVectorWithIterationDistances(inputVars, fractalVars, maxIterations);
 
-	for (int j = 0; j < len; j++) {
-		sin = sinf(2 * (float)M_PI * soundVars.freq * length / fs_ * j) / 4;
-		buff[2 * j] = sin; //left channel
-		buff[2 * j + 1] = sin; //right channel
+	if (distances.size() == maxIterations) {
+		partOfTheSet = true;
 	}
 
-	while (glm::length(z) <= 2 && i < max_iterations && i < len) {
-		switch (fractalVars.fractalType) {
-		case 0:
-			//mandelbrot
-			z = FractalUtility::VecPow(z, fractalVars.power) + c;
-			break;
-		case 1:
-			//burning ship
-			glm::vec2 z_abs = glm::abs(z);
-			z = FractalUtility::VecPow(z_abs, fractalVars.power) + c;
-			break;
+	for (int j = 0; j < len; j++) {
+		buff[2 * j] = 0; //left channel
+		buff[2 * j + 1] = 0; //right channel
+	}
+
+	int waveCount = min(maxIterations, distances.size());
+	for (i = 0; i < waveCount; i++)
+	{
+		for (int j = 0; j < len; j++) {
+			sin = sinf(sinConst * distances[i] * j) * 0.25;
+
+			buff[2 * j] += sin;
+			buff[2 * j + 1] += sin;
 		}
-
-		length = glm::length(z);
-
-		for (int j = i; j < len-i; j++) {
-			sin = sinf(2 * (float)M_PI * soundVars.freq * length / fs_ * j) / 4;
-			buff[2 * j] = buff[2 * j] + sin;
-			buff[2 * j + 1] = buff[2 * j + 1] + sin;
-		}
-
-		i++;
 	}
 
 	if (soundVars.normalizeSound) {
@@ -197,7 +172,7 @@ bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVa
 		}
 	}
 
-	return true;
+	return partOfTheSet;
 }
 
 Mix_Chunk* FractalSound::CreateMixChunk() {
