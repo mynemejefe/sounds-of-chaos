@@ -20,11 +20,13 @@ void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, 
 	Mix_Chunk* chunk = CreateMixChunk();
 	
 	bool partOfFractal;
-	if (soundVars.soundGenerationMode == 0) {
+	switch (soundVars.soundGenerationMode) {
+	case 0:
 		partOfFractal = FillBufferSimple(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
-	}
-	else {
+		break;
+	case 1: default:
 		partOfFractal = FillBufferAdditive(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
+		break;
 	}
 
 	if (!soundVars.allowCloseNeighbours && !partOfFractal) {
@@ -41,11 +43,13 @@ float* FractalSound::CreateSoundBufferFromLastPos(InputVars inputVars, FractalVa
 	//A Mix_Chunk's buffer length is 4*2*FS but its type is Uint8 (1 byte), float is 4 bytes
 	float* soundBuffer = new float[2 * FS];
 
-	if (soundVars.soundGenerationMode == 0) {
+	switch (soundVars.soundGenerationMode) {
+	case 0:
 		FillBufferSimple(inputVars, fractalVars, soundVars, soundBuffer);
-	}
-	else {
+		break;
+	case 1: default:
 		FillBufferAdditive(inputVars, fractalVars, soundVars, soundBuffer);
+		break;
 	}
 
 	return soundBuffer;
