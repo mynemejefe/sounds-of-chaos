@@ -111,7 +111,7 @@ bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars
 	float sinConst = 2 * (float)M_PI * soundVars.freq / fs_;
 	bool partOfTheSet = false;
 
-	auto distances = FractalUtility::MakeVectorWithIterationDistances(inputVars, fractalVars);
+	auto distances = FractalUtility::MakeVectorWithIterationDistances(inputVars, fractalVars, maxIterations);
 
 	if (distances.size() == maxIterations) {
 		partOfTheSet = true;
