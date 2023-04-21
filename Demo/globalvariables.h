@@ -1,8 +1,6 @@
 #pragma once
 #include <glm/ext/vector_float2.hpp>
 
-const int FS = 44100;
-
 struct InputVars {
 	glm::vec2 lastClickPos{ 0,0 };
 	float zoomValue = 0.5f;

@@ -41,7 +41,7 @@ void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, 
 float* FractalSound::CreateSoundBufferFromLastPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars)
 {
 	//A Mix_Chunk's buffer length is 4*2*FS but its type is Uint8 (1 byte), float is 4 bytes
-	float* soundBuffer = new float[2 * FS];
+	float* soundBuffer = new float[2 * fs_];
 
 	switch (soundVars.soundGenerationMode) {
 	case 0:

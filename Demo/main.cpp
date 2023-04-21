@@ -30,6 +30,7 @@ int main(int argc, char* args[])
 
 	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fraktál" };
 	const char* SoundGenerationModes[]{ "Egyszerű", "Additív" };
+	const int FS = 44100;
 
 	InputVars inputVars;
 	FractalVars fractalVars;
