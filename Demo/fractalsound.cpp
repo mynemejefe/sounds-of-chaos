@@ -106,7 +106,7 @@ void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfte
 }
 
 bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]) {
-	int maxIterations = fractalVars.maxIterations;
+	int maxIterations = soundVars.maxSoundIterations;
 	int i = 0, len = fs_;
 	float sinConst = 2 * (float)M_PI * soundVars.freq / fs_;
 	bool partOfTheSet = false;
@@ -142,7 +142,7 @@ bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars
 
 bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[])
 {
-	int maxIterations = 100;
+	int maxIterations = soundVars.maxSoundIterations;
 	int i = 0, len = fs_;
 	float sin, sinConst = 2 * (float)M_PI * soundVars.freq / fs_;
 	bool partOfTheSet = false;

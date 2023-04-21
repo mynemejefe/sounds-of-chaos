@@ -130,12 +130,15 @@ int main(int argc, char* args[])
 				}
 				if (ImGui::CollapsingHeader("Hanggenerálás")) {
 					ImGui::Combo("Hanggenerálás módja", &soundVars.soundGenerationMode, SoundGenerationModes, IM_ARRAYSIZE(SoundGenerationModes));
+					ImGui::SliderInt("Maximum iterációs lépések hanggeneráláskor", &soundVars.maxSoundIterations, 10, 1000);
 					ImGui::SliderInt("Hang alapfrekvencia", &soundVars.freq, 0, 6000);
 					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &soundVars.allowCloseNeighbours);
 					ImGui::Checkbox("Hangerő normalizálása", &soundVars.normalizeSound);
 				}
 			}
 			ImGui::End();
+			// slidereknel shift gyorsabb, alt lassabb, double click direct editeles
+			// InputInt
 
 			frameBuff << df::Clear() << program
 				<< "offset" << glm::vec2(cam.GetEye().x, cam.GetEye().y)
