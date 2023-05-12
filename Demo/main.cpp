@@ -29,7 +29,7 @@ int main(int argc, char* args[])
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
 	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fraktál" };
-	const char* SoundGenerationModes[]{ "Egyszerű", "Additív" };
+	const char* SoundGenerationModes[]{ "Egyszerü", "Additív" };
 	const int FS = 44100;
 
 	InputVars inputVars;
@@ -133,7 +133,7 @@ int main(int argc, char* args[])
 					ImGui::SliderInt("Maximum iterációs lépések hanggeneráláskor", &soundVars.maxSoundIterations, 10, 1000);
 					ImGui::SliderInt("Hang alapfrekvencia", &soundVars.freq, 0, 6000);
 					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &soundVars.allowCloseNeighbours);
-					ImGui::Checkbox("Hangerő normalizálása", &soundVars.normalizeSound);
+					ImGui::Checkbox("Hangerö normalizálása", &soundVars.normalizeSound);
 				}
 			}
 			ImGui::End();
