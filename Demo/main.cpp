@@ -133,7 +133,7 @@ int main(int argc, char* args[])
 					ImGui::SliderInt("Maximum iterációs lépések hanggeneráláskor", &soundVars.maxSoundIterations, 10, 1000);
 					ImGui::SliderInt("Hang alapfrekvencia", &soundVars.freq, 0, 6000);
 					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &soundVars.allowCloseNeighbours);
-					ImGui::Checkbox("Hangerö normalizálása", &soundVars.normalizeSound);
+					ImGui::SliderFloat("Hangerö normalizálás szintje", &soundVars.normalizationLevel, 0, 1);
 				}
 			}
 			ImGui::End();
