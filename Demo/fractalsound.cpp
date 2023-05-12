@@ -35,7 +35,11 @@ void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, 
 			return;
 		}
 
-		FractalSound::PlaySoundFromMixChunk(chunk, true);
+		FractalSound::PlaySoundFromMixChunk(chunk);
+
+		Sleep(2000);
+
+		FractalSound::Mix_FreeChunk(chunk);
 	});
 
 	task.detach();
@@ -82,30 +86,19 @@ bool FractalSound::UsePianoKey(InputVars inputVars, FractalVars fractalVars, Sou
 	}
 	if (key->isFilled)
 	{
-		PlaySoundFromMixChunk(key->soundToPlay, false);
+		PlaySoundFromMixChunk(key->soundToPlay);
 		return true;
 	}
 
 	return false;
 }
 
-void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse)
+void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay)
 {
 #ifdef TESTING
 	return;
 #else
-	Mix_Chunk* chunk = chunkToPlay;
-
-	std::thread play([this, chunk, freeUpAfterUse]() {
-		Mix_PlayChannel(-1, chunk, 0);
-
-		if (freeUpAfterUse) {
-			Sleep(2000);
-			FractalSound::Mix_FreeChunk(chunk);
-		}
-	});
-
-	play.detach();
+	Mix_PlayChannel(-1, chunkToPlay, 0);
 #endif
 }
 

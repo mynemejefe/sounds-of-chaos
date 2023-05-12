@@ -19,7 +19,7 @@ public:
 	void PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars);
 	float* CreateSoundBufferFromLastPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars);
 	bool UsePianoKey(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, int n);
-	void PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay, bool freeUpAfterUse);
+	void PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay);
 
 	inline const int GetFs() { return fs_; };
 private:
