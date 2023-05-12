@@ -17,24 +17,28 @@ FractalSound::~FractalSound() {
 
 void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars)
 {
-	Mix_Chunk* chunk = CreateMixChunk();
-	
-	bool partOfFractal;
-	switch (soundVars.soundGenerationMode) {
-	case 0:
-		partOfFractal = FillBufferSimple(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
-		break;
-	case 1: default:
-		partOfFractal = FillBufferAdditive(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
-		break;
-	}
+	std::thread task([this, inputVars, fractalVars, soundVars]() {
+		Mix_Chunk* chunk = CreateMixChunk();
 
-	if (!soundVars.allowCloseNeighbours && !partOfFractal) {
-		FractalSound::Mix_FreeChunk(chunk);
-		return;
-	}
+		bool partOfFractal;
+		switch (soundVars.soundGenerationMode) {
+		case 0:
+			partOfFractal = FillBufferSimple(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
+			break;
+		case 1: default:
+			partOfFractal = FillBufferAdditive(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
+			break;
+		}
 
-	FractalSound::PlaySoundFromMixChunk(chunk, true);
+		if (!soundVars.allowCloseNeighbours && !partOfFractal) {
+			FractalSound::Mix_FreeChunk(chunk);
+			return;
+		}
+
+		FractalSound::PlaySoundFromMixChunk(chunk, true);
+	});
+
+	task.detach();
 }
 
 // Make sure to deallocate the return value when you don't need it anymore
