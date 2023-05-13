@@ -6,10 +6,10 @@ class FractalSoundTester
 {
 public:
 	void RunAllTests();
-	bool TestConstructor();
-	bool TestPianoKey();
+	void TestConstructor();
+	void TestPianoKey();
 
 private:
-	FractalSound* _fractalSound;
+	int failCount_;
 };
 
