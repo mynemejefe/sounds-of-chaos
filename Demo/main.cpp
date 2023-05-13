@@ -109,15 +109,15 @@ int main(int argc, char* args[])
 		{
 			cam.Update();
 
-			ImGui::SetNextWindowSize({ 500,320 }, ImGuiCond_Once);
-			ImGui::SetNextWindowSizeConstraints(ImVec2{ 350,100 }, ImVec2{ 1000,2000 });
+			ImGui::SetNextWindowSize({ 530,450 }, ImGuiCond_Once);
+			ImGui::SetNextWindowSizeConstraints(ImVec2{ 450,200 }, ImVec2{ 1000,750 });
 			if (ImGui::Begin("Beállítások"))
 			{
-				ImGui::PushItemWidth(-220);
-				if (ImGui::CollapsingHeader("Kamera információ")) {
-					ImGui::Text("Pozíció: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
-					ImGui::Text("Kurzor pozíció: (%f, %f)", inputVars.lastClickPos.x, inputVars.lastClickPos.y);
-					ImGui::Text("Sebesség: %f, Zoom mértéke: %f", cam.GetSpeed(), inputVars.zoomValue);
+				ImGui::PushItemWidth(-230);
+				if (ImGui::CollapsingHeader("Kamera információ"), ImGuiTreeNodeFlags_DefaultOpen) {
+					ImGui::Text("Kamera pozíció: (%f, %f)", cam.GetEye().x, cam.GetEye().y);
+					ImGui::Text("Utolsó kattintás pozíciója: (%f, %f)", inputVars.lastClickPos.x, inputVars.lastClickPos.y);
+					ImGui::Text("Zoom mértéke: %f", inputVars.zoomValue);
 				}
 				if (ImGui::CollapsingHeader("Megjelenítés")) {
 					ImGui::Combo("Fraktál típusa", &fractalVars.fractalType, fractalTypes, IM_ARRAYSIZE(fractalTypes));
@@ -130,7 +130,7 @@ int main(int argc, char* args[])
 				}
 				if (ImGui::CollapsingHeader("Hanggenerálás")) {
 					ImGui::Combo("Hanggenerálás módja", &soundVars.soundGenerationMode, SoundGenerationModes, IM_ARRAYSIZE(SoundGenerationModes));
-					ImGui::SliderInt("Maximum iterációs lépések hanggeneráláskor", &soundVars.maxSoundIterations, 10, 1000);
+					ImGui::SliderInt("Maximum iteráció hanggeneráláskor", &soundVars.maxSoundIterations, 10, 1000);
 					ImGui::SliderInt("Hang alapfrekvencia", &soundVars.freq, 0, 6000);
 					ImGui::Checkbox("Közeli szomszédok hangjának engedélyezése", &soundVars.allowCloseNeighbours);
 					ImGui::SliderFloat("Hangerö normalizálás szintje", &soundVars.normalizationLevel, 0, 1);
