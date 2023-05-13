@@ -39,6 +39,11 @@ void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, 
 			break;
 		}
 
+		auto t2 = std::chrono::system_clock::now();
+		auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+		auto ms = milliseconds.count();
+		std::cout << ms << std::endl;
+
 		if (!soundVars.allowCloseNeighbours && !partOfFractal) {
 			FractalSound::Mix_FreeChunk(chunk);
 			return;
