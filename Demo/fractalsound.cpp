@@ -18,7 +18,7 @@ FractalSound::~FractalSound() {
 void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars)
 {
 	std::thread task([this, inputVars, fractalVars, soundVars]() {
-		Mix_Chunk* chunk = CreateMixChunk();
+		Mix_Chunk* chunk = CreateMixChunk(soundVars.soundVolume);
 
 		bool partOfFractal;
 		switch (soundVars.soundGenerationMode) {
@@ -78,7 +78,7 @@ bool FractalSound::UsePianoKey(InputVars inputVars, FractalVars fractalVars, Sou
 			delete(key->soundToPlay->abuf);
 		}
 		else {
-			key->soundToPlay = CreateMixChunk();
+			key->soundToPlay = CreateMixChunk(soundVars.soundVolume);
 			key->isFilled = true;
 		}
 		key->soundToPlay->abuf = (Uint8*)CreateSoundBufferFromLastPos(inputVars, fractalVars, soundVars);
@@ -178,12 +178,17 @@ bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVa
 	return partOfTheSet;
 }
 
-Mix_Chunk* FractalSound::CreateMixChunk() {
+Mix_Chunk* FractalSound::CreateMixChunk(int volume) {
 	Mix_Chunk* chunk = new Mix_Chunk;
 	chunk->alen = 4 * 2 * fs_;
 	chunk->abuf = new Uint8[chunk->alen];
 	chunk->allocated = 0;
-	chunk->volume = MIX_MAX_VOLUME;
+	if (1 <= volume && volume <= MIX_MAX_VOLUME) {
+		chunk->volume = volume;
+	}
+	else {
+		chunk->volume = MIX_MAX_VOLUME;
+	}
 
 	return chunk;
 }

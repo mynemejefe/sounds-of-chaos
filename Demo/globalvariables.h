@@ -19,6 +19,7 @@ struct SoundVars {
 	int freq = 440;
 	bool allowCloseNeighbours = true;
 	float normalizationLevel = 0.5; // Range: [0,1]
+	int soundVolume = 128; // Range: [1,128]
 };
 
 struct GraphicVars {
