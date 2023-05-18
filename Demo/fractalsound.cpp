@@ -4,8 +4,15 @@
 #include <synchapi.h>
 #include "fractalutility.h"
 
-FractalSound::FractalSound(int fs) : fs_(fs) {
-	if (-1 == Mix_OpenAudio(fs, AUDIO_F32, 2, 512))
+FractalSound::FractalSound(int fs) {
+	if (0 < fs) {
+		fs_ = fs;
+	}
+	else {
+		fs_ = 44100; // Default value
+	}
+
+	if (-1 == Mix_OpenAudio(fs_, AUDIO_F32, 2, 512))
 	{
 		return;
 	}
@@ -17,7 +24,9 @@ FractalSound::~FractalSound() {
 
 void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars)
 {
+#ifndef TESTING
 	std::thread task([this, inputVars, fractalVars, soundVars]() {
+#endif
 		Mix_Chunk* chunk = CreateMixChunk(soundVars.soundVolume);
 
 		bool partOfFractal;
@@ -36,13 +45,15 @@ void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, 
 		}
 
 		FractalSound::PlaySoundFromMixChunk(chunk);
-
+#ifndef TESTING
 		Sleep(2000);
-
+#endif
 		FractalSound::Mix_FreeChunk(chunk);
+#ifndef TESTING
 	});
 
 	task.detach();
+#endif
 }
 
 // Make sure to deallocate the return value when you don't need it anymore
