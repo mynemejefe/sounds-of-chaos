@@ -3,6 +3,7 @@
 #include <sysinfoapi.h>
 #include <Psapi.h>
 #include <processthreadsapi.h>
+#include "fractalutility.h"
 
 #define CHECK_EQ(actual, expected, isAssert)                        \
     if(actual != expected){                                         \
@@ -86,8 +87,10 @@ void FractalSoundTester::RunAllTests() {
     std::cout << "\nRunning all tests..." << std::endl;
 
 	failCount_ = 0;
+
     TestConstructor();
 	TestMixChunkCreation();
+	TestMakeVectorWithIterationDistances();
     TestPianoKey();
 	CheckMemoryLeaks();
 
@@ -119,6 +122,99 @@ void FractalSoundTester::TestConstructor()
 	fractalSound->~FractalSound();
 }
 
+void FractalSoundTester::TestMakeVectorWithIterationDistances() {
+	std::cout << "\nTesting MakeVectorWithIterationDistances...\n";
+
+	InputVars input;
+	FractalVars fractal;
+	SoundVars sound;
+	fractal.maxIterations = 10;
+	FractalSound* fractalSound = new FractalSound(44100);
+
+	ASSERT_NE(fractalSound, NULL);
+
+
+	// Mandelbrot tests
+	fractal.fractalType = 0;
+	fractal.power = 2;
+	input.lastClickPos = glm::vec2(-1, 0);
+	auto distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal);
+	EXPECT_EQ(distances.size(), fractal.maxIterations)
+	for (int i = 0; i < distances.size(); i++)
+	{
+		if (i % 2 == 0) {
+			EXPECT_EQ(distances[i], 0);
+		}
+		else {
+			EXPECT_EQ(distances[i], 1);
+		}
+	}
+
+	input.lastClickPos = glm::vec2(0.25, -0.25);
+	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal, 3);
+	float expectedDistances[] = { 0.45069, 0.47005, 0.40997};
+	EXPECT_EQ(distances.size(), 3)
+	for (int i = 0; i < distances.size(); i++)
+	{
+		EXPECT_NEARBY(distances[i], expectedDistances[i], 0.00001);
+	}
+
+	fractal.fractalType = 0;
+	fractal.power = 3;
+	input.lastClickPos = glm::vec2(0, 1);
+	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal);
+	EXPECT_EQ(distances.size(), fractal.maxIterations)
+	for (int i = 0; i < distances.size(); i++)
+	{
+		if (i % 2 == 0) {
+			EXPECT_EQ(distances[i], 0);
+		}
+		else {
+			EXPECT_EQ(distances[i], 1);
+		}
+	}
+
+	input.lastClickPos = glm::vec2(0, -1);
+	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal);
+	EXPECT_EQ(distances.size(), fractal.maxIterations)
+	for (int i = 0; i < distances.size(); i++)
+	{
+		if (i % 2 == 0) {
+			EXPECT_EQ(distances[i], 0);
+		}
+		else {
+			EXPECT_EQ(distances[i], 1);
+		}
+	}
+
+	// Burning ship tests
+	fractal.fractalType = 1;
+	fractal.power = 2;
+	input.lastClickPos = glm::vec2(-1, 0);
+	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal);
+	EXPECT_EQ(distances.size(), fractal.maxIterations)
+	for (int i = 0; i < distances.size(); i++)
+	{
+		if (i % 2 == 0) {
+			EXPECT_EQ(distances[i], 0);
+		}
+		else {
+			EXPECT_EQ(distances[i], 1);
+		}
+	}
+
+	input.lastClickPos = glm::vec2(0.25, -1);
+	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal, 3);
+	float expectedDistances2[] = { 0.85009, 0.56662, 0.79851};
+	EXPECT_EQ(distances.size(), 3)
+	for (int i = 0; i < distances.size(); i++)
+	{
+		EXPECT_NEARBY(distances[i], expectedDistances2[i], 0.00001);
+	}
+
+	fractalSound->~FractalSound();
+}
+
 void FractalSoundTester::TestPianoKey() {
 	std::cout << "\nTesting PianoKeys...\n";
 
@@ -134,7 +230,7 @@ void FractalSoundTester::TestPianoKey() {
 	InputVars input;
 	FractalVars fractal;
 	SoundVars sound;
-	input.lastClickPos = glm::vec2(1, 0);
+	input.lastClickPos = glm::vec2(-1, 0);
 	input.isShiftHeldDown = true;
 
 	//Invalid arguments for n

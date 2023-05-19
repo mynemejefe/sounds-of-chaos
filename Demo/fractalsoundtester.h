@@ -6,16 +6,16 @@ class FractalSoundTester
 {
 public:
 	void RunAllTests();
+
+private:
 	void TestConstructor();
 	void TestMixChunkCreation();
-	void TestCreatingSoundBuffer();
+	void TestMakeVectorWithIterationDistances();
 	void TestFillBufferSimple();
 	void TestFillBufferAdditive();
-	void TestFillBufferAdditiveWithKernel();
 	void TestPianoKey();
 	void CheckMemoryLeaks();
 
-private:
 	int failCount_;
 };
 
