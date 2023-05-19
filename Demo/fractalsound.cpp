@@ -130,7 +130,7 @@ bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars
 		float sin = sinf(sinConst * i) * 0.25;
 
 		buff[2 * i] = sin * distances[i]; //left channel
-		buff[2 * i + 1] = sin * distances[i]; //right channel
+		buff[2 * i + 1] = buff[2 * i]; //right channel
 	}
 
 	if (i != len && i != 0) {
@@ -140,7 +140,7 @@ bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars
 		int j = 0;
 		for (; i < len; i++) {
 			buff[2 * i] = buff[2 * j];
-			buff[2 * i + 1] = buff[2 * j + 1];
+			buff[2 * i + 1] = buff[2 * j];
 			j = j % original_iterations + 1;
 		}
 	}
@@ -173,7 +173,6 @@ bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVa
 			sin = sinf(sinConst * distances[i] * j) * 0.25;
 
 			buff[2 * j] += sin;
-			buff[2 * j + 1] += sin;
 		}
 	}
 
@@ -182,8 +181,13 @@ bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVa
 	if (divisor != 1) {
 		for (int j = 0; j < len; j++) {
 			buff[2 * j] = buff[2 * j] / divisor;
-			buff[2 * j + 1] = buff[2 * j + 1] / divisor;
 		}
+	}
+
+	// Copying values from "left ear" channel to "right ear" channel
+	for (int i = 0; i < len; i++)
+	{
+		buff[2 * i + 1] = buff[2 * i];
 	}
 
 	return partOfTheSet;
