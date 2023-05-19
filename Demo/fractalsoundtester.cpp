@@ -56,14 +56,31 @@
 		}															\
     }
 
+#define CHECK_NEARBY(num1, num2, precision, isAssert)				\
+	if ((num1 > num2 && num1 - num2 > precision)					\
+		|| (num2 > num1 && num2 - num1 > precision)) {				\
+		std::cout << "\nCheck failed while running " << __func__    \
+			<< ", at line " << __LINE__ << std::endl				\
+			<< "Expected the difference of " << int(num1)			\
+			<< " (" << #num1 << ") and "							\
+			<< int(num2) << " (" << #num2 << ") to be at most "		\
+			<< precision << std::endl;								\
+			failCount_++;											\
+			if (isAssert) {											\
+				return;												\
+			}														\
+	}
+
 #define ASSERT_EQ(actual, expected) CHECK_EQ(actual, expected, true)
 #define ASSERT_NE(actual, expected) CHECK_NE(actual, expected, true)
 #define ASSERT_TRUE(arg) CHECK_TRUE(arg, true)
 #define ASSERT_FALSE(arg) CHECK_FALSE(arg, true)
+#define ASSERT_NEARBY(num1, num2, precision) CHECK_NEARBY(num1, num2, precision, true)
 #define EXPECT_EQ(actual, expected) CHECK_EQ(actual, expected, false)
 #define EXPECT_NE(actual, expected) CHECK_NE(actual, expected, false)
 #define EXPECT_TRUE(arg) CHECK_TRUE(arg, false)
 #define EXPECT_FALSE(arg) CHECK_FALSE(arg, false)
+#define EXPECT_NEARBY(num1, num2, precision) CHECK_NEARBY(num1, num2, precision, false)
 
 void FractalSoundTester::RunAllTests() {
     std::cout << "\nRunning all tests..." << std::endl;
@@ -228,7 +245,7 @@ void FractalSoundTester::CheckMemoryLeaks() {
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 	SIZE_T virtualMemUsedByProcess2 = pmc.PrivateUsage;
 
-	EXPECT_TRUE(virtualMemUsedByProcess2 < 1.01 * virtualMemUsedByProcess1);
+	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.01 * virtualMemUsedByProcess2);
 	std::cout
 		<< "Before test 1: " << virtualMemUsedByProcess1 << "Bytes"
 		<< ", after test 1: " << virtualMemUsedByProcess2 << "Bytes" << "\n";
@@ -246,7 +263,7 @@ void FractalSoundTester::CheckMemoryLeaks() {
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 	virtualMemUsedByProcess2 = pmc.PrivateUsage;
 
-	EXPECT_TRUE(virtualMemUsedByProcess2 < 1.01 * virtualMemUsedByProcess1);
+	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.01 * virtualMemUsedByProcess2);
 	std::cout
 		<< "Before test 2: " << virtualMemUsedByProcess1 << "Bytes"
 		<< ", after test 2: " << virtualMemUsedByProcess2 << "Bytes" << "\n";
