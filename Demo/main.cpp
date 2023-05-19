@@ -10,7 +10,7 @@ int main(int argc, char* args[])
 {
 #ifdef TESTING
 	FractalSoundTester* tester = new FractalSoundTester();
-	tester->RunAllTests();
+	tester->RunPerformanceTests();
 #else
 
 	df::Sample sam("Sounds of chaos", 800, 800, df::Sample::FLAGS::DEFAULT);

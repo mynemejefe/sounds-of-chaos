@@ -5,6 +5,7 @@
 #include <processthreadsapi.h>
 #include "fractalutility.h"
 #include <string>
+#include <mutex>
 
 #define CHECK_EQ(actual, expected, isAssert)                        \
     if(actual != expected){                                         \
@@ -107,6 +108,41 @@ void FractalSoundTester::RunAllTests() {
 }
 
 void FractalSoundTester::TestConstructor()
+void FractalSoundTester::RunPerformanceTests() {
+	const int RepetitionsWithinTest = 100;
+	InputVars input;
+	FractalVars fractal;
+	SoundVars sound;
+	input.lastClickPos = glm::vec2(-1, 0);
+	fractal.fractalType = 0;
+	fractal.power = 2;
+	sound.allowCloseNeighbours = true;
+	sound.freq = 440;
+	sound.normalizationLevel = 0;
+	sound.soundGenerationMode = 1;
+	FractalSound* fractalSound = new FractalSound(44100);
+	float* soundBuffer = new float[2 * 441000];
+
+	sound.maxSoundIterations = 50;
+	for (int i = 0; i < 20; i++)
+	{
+		auto t1 = std::chrono::system_clock::now();
+
+		for (size_t i = 0; i < RepetitionsWithinTest; i++)
+		{
+			fractalSound->FillBufferAdditive(input, fractal, sound, soundBuffer);
+		}
+
+		auto t2 = std::chrono::system_clock::now();
+		auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
+		auto ms = microseconds.count();
+		std::cout << "Average time of " << RepetitionsWithinTest << " repetitions: "
+			<< ms / RepetitionsWithinTest << "\tmicroseconds at " << sound.maxSoundIterations << " fractal iterations\n";
+
+		sound.maxSoundIterations += 50;
+	}
+}
+
 {
 	std::cout << "\nTesting constructor...\n";
 

@@ -5,6 +5,7 @@
 class FractalSoundTester
 {
 public:
+	void RunPerformanceTests();
 	void RunAllTests();
 
 private:
