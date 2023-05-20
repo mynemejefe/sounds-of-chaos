@@ -123,7 +123,7 @@ void FractalSoundTester::TestConstructor()
 }
 
 void FractalSoundTester::TestMakeVectorWithIterationDistances() {
-	std::cout << "\nTesting MakeVectorWithIterationDistances...\n";
+	std::cout << "\nTesting the correctness of the fractal algorithm calculations...\n";
 
 	InputVars input;
 	FractalVars fractal;
@@ -315,7 +315,8 @@ void FractalSoundTester::TestPianoKey() {
 }
 
 void FractalSoundTester::CheckMemoryLeaks() {
-	std::cout << "\nChecking potential memory leak locations...\n";
+	std::cout << "\nChecking potential memory leak locations...\n\n"
+		<< "   Consumed total virtual memory by current process:\n";
 
 	FractalSound* fractalSound = new FractalSound(44100);
 
@@ -341,10 +342,10 @@ void FractalSoundTester::CheckMemoryLeaks() {
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 	SIZE_T virtualMemUsedByProcess2 = pmc.PrivateUsage;
 
-	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.01 * virtualMemUsedByProcess2);
 	std::cout
-		<< "Before test 1: " << virtualMemUsedByProcess1 << "Bytes"
-		<< ", after test 1: " << virtualMemUsedByProcess2 << "Bytes" << "\n";
+		<< "   Before test 1:\t" << virtualMemUsedByProcess1 << " Bytes\n"
+		<< "   After test 1:\t" << virtualMemUsedByProcess2 << " Bytes\n";
+	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.01 * virtualMemUsedByProcess2);
 
 	// Checking for memory leaks when re-recording sounds
 
@@ -359,11 +360,10 @@ void FractalSoundTester::CheckMemoryLeaks() {
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
 	virtualMemUsedByProcess2 = pmc.PrivateUsage;
 
-	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.01 * virtualMemUsedByProcess2);
 	std::cout
-		<< "Before test 2: " << virtualMemUsedByProcess1 << "Bytes"
-		<< ", after test 2: " << virtualMemUsedByProcess2 << "Bytes" << "\n";
-
+		<< "   Before test 2:\t" << virtualMemUsedByProcess1 << " Bytes\n"
+		<< "   After test 2:\t" << virtualMemUsedByProcess2 << " Bytes\n";
+	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.01 * virtualMemUsedByProcess2);
 }
 
 void FractalSoundTester::TestMixChunkCreation()
