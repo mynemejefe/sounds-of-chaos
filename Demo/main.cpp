@@ -138,8 +138,6 @@ int main(int argc, char* args[])
 				}
 			}
 			ImGui::End();
-			// slidereknel shift gyorsabb, alt lassabb, double click direct editeles
-			// InputInt
 
 			frameBuff << df::Clear() << program
 				<< "offset" << glm::vec2(cam.GetEye().x, cam.GetEye().y)
