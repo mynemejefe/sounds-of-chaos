@@ -14,7 +14,7 @@ struct FractalVars {
 };
 
 struct SoundVars {	
-	int soundGenerationMode = 1;
+	int soundGenerationMode = 1; // possible values: 0-2
 	int maxSoundIterations = 150;
 	int freq = 440;
 	bool allowCloseNeighbours = true;

@@ -29,7 +29,7 @@ int main(int argc, char* args[])
 	auto frameBuff = df::Renderbuffer<df::depth24>(w, h) + df::Texture2D<>(w, h, 1);
 
 	const char* fractalTypes[]{ "Mandelbrot set", "Burning ship fraktál" };
-	const char* SoundGenerationModes[]{ "Egyszerü", "Additív" };
+	const char* SoundGenerationModes[]{ "Egyszerü", "Additív", "Additív kernellel"};
 	const int FS = 44100;
 
 	InputVars inputVars;

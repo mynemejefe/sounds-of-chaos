@@ -3,6 +3,7 @@
 #include <SDL/SDL_mixer.h>
 #include <glm/glm.hpp>
 #include "globalvariables.h"
+#include <vector>
 
 // #define TESTING
 
@@ -28,6 +29,7 @@ private:
 
 	Mix_Chunk* CreateMixChunk(int volume);
 	void Mix_FreeChunk(Mix_Chunk* chunk);
+	std::vector<float> ApplyKernelToDistances(std::vector<float> distances, std::vector<int> kernel);
 	bool FillBufferSimple(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]);
 	bool FillBufferAdditive(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]);
 

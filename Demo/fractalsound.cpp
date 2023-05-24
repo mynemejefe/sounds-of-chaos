@@ -3,6 +3,7 @@
 #include <thread>
 #include <synchapi.h>
 #include "fractalutility.h"
+#include <stdexcept>
 
 FractalSound::FractalSound(int fs) {
 	if (0 < fs) {
@@ -161,6 +162,15 @@ bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVa
 		partOfTheSet = true;
 	}
 
+	if (soundVars.soundGenerationMode == 2) {
+		try {
+			std::vector<int> kernel = { 1, 2, 4, 8, 4, 2, 1 };
+			auto distancesWithKernel = ApplyKernelToDistances(distances, kernel);
+			distances = std::move(distancesWithKernel);
+		}
+		catch (const std::runtime_error& e) {}
+	}
+	
 	for (int j = 0; j < len; j++) {
 		buff[2 * j] = 0; //left channel
 		buff[2 * j + 1] = 0; //right channel
@@ -191,6 +201,34 @@ bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVa
 	}
 
 	return partOfTheSet;
+}
+
+// only kernels with odd numbers of elements are allowed
+std::vector<float> FractalSound::ApplyKernelToDistances(std::vector<float> distances, std::vector<int> kernel)
+{
+	assert(kernel.size() % 2 == 1);
+
+	if (kernel.size() > distances.size()) {
+		throw std::runtime_error("The distances vector is too small for the kernel!");
+	}
+
+	std::vector<float> distancesWithKernel(distances.size(), 0);
+
+	for (int i = 0; i < distances.size(); i++)
+	{
+		int kernelSizeHalved = kernel.size() / 2;
+		int j_start = i < kernelSizeHalved ? kernelSizeHalved - i : 0;
+		int j_end = i >= distances.size() - kernelSizeHalved ? distances.size() - i + kernelSizeHalved : kernel.size();
+		int sumOfKernelValues = 0;
+		for (int j = j_start; j < j_end; j++) {
+			distancesWithKernel[i] += kernel[j] * distances[i + j - kernelSizeHalved];
+			sumOfKernelValues += kernel[j];
+		}
+		distancesWithKernel[i] /= sumOfKernelValues;
+
+	}
+
+	return distancesWithKernel;
 }
 
 Mix_Chunk* FractalSound::CreateMixChunk(int volume) {

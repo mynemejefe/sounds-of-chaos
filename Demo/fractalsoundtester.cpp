@@ -4,6 +4,7 @@
 #include <Psapi.h>
 #include <processthreadsapi.h>
 #include "fractalutility.h"
+#include <string>
 
 #define CHECK_EQ(actual, expected, isAssert)                        \
     if(actual != expected){                                         \
@@ -91,6 +92,7 @@ void FractalSoundTester::RunAllTests() {
     TestConstructor();
 	TestMixChunkCreation();
 	TestMakeVectorWithIterationDistances();
+	TestKernel();
     TestPianoKey();
 	CheckMemoryLeaks();
 
@@ -210,6 +212,67 @@ void FractalSoundTester::TestMakeVectorWithIterationDistances() {
 	for (int i = 0; i < distances.size(); i++)
 	{
 		EXPECT_NEARBY(distances[i], expectedDistances2[i], 0.00001);
+	}
+
+	fractalSound->~FractalSound();
+}
+
+void FractalSoundTester::TestKernel()
+{
+	std::cout << "\nTesting kernel function...\n";
+
+	FractalSound* fractalSound = new FractalSound(44100);
+
+	ASSERT_NE(fractalSound, NULL);
+
+	std::vector<float> distances = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	std::vector<int> kernel = { 0, 1, 0 };
+	std::vector<float> distancesWithKernel;
+	std::vector<float> expectedDistances = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+	distancesWithKernel = fractalSound->ApplyKernelToDistances(distances, kernel);
+
+	ASSERT_EQ(distances.size(), distancesWithKernel.size());
+	for (int i = 0; i < distances.size(); i++)
+	{
+		EXPECT_EQ(distancesWithKernel[i], expectedDistances[i]);
+	}
+
+	distances = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	kernel = { 1, 2, 1 };
+	expectedDistances = { 4.f/3, 2, 3, 4, 5, 6, 7, 8, 9, 29.f/3 };
+
+	distancesWithKernel = fractalSound->ApplyKernelToDistances(distances, kernel);
+
+	ASSERT_EQ(distances.size(), distancesWithKernel.size());
+	for (int i = 0; i < distances.size(); i++)
+	{
+		EXPECT_EQ(distancesWithKernel[i], expectedDistances[i]);
+	}
+
+	distances = { 5, 0, 3, 4, 5, 7, 3, 8, 9, 0 };
+	kernel = { 1, 3, 2, 0, 1 };
+	expectedDistances = { 13.f/3, 19.f/6, 16.f/7, 24.f/7, 28.f/7, 41.f/7, 41.f/7, 32.f/7, 45.f/6, 35.f/6 };
+
+	distancesWithKernel = fractalSound->ApplyKernelToDistances(distances, kernel);
+
+	ASSERT_EQ(distances.size(), distancesWithKernel.size());
+	for (int i = 0; i < distances.size(); i++)
+	{
+		EXPECT_EQ(distancesWithKernel[i], expectedDistances[i]);
+	}
+
+	// Checking errors
+	distances = { 1 };
+	kernel = { 1,2,3 };
+
+	try {
+		distancesWithKernel = fractalSound->ApplyKernelToDistances(distances, kernel);
+	}
+	catch (const std::runtime_error& e) {
+		std::string message = std::string(e.what());
+		std::string expectedMessage = "The distances vector is too small for the kernel!";
+		EXPECT_TRUE(message.compare(expectedMessage) == 0);
 	}
 
 	fractalSound->~FractalSound();
