@@ -31,7 +31,6 @@ vec2 vec_pow(vec2 u, int power){
 void main()
 {	
 	vec2 z = fs_in_tex.xy / zoom_value + offset;
-	z.y = -z.y;
 	vec2 c = z;
 	int iter = 0;
 
