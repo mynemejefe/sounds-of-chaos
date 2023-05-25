@@ -33,7 +33,7 @@ void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, 
 		bool partOfFractal;
 		switch (soundVars.soundGenerationMode) {
 		case 0:
-			partOfFractal = FillBufferSimple(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
+			partOfFractal = FillBufferAM(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
 			break;
 		case 1: default:
 			partOfFractal = FillBufferAdditive(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
@@ -65,7 +65,7 @@ float* FractalSound::CreateSoundBufferFromLastPos(InputVars inputVars, FractalVa
 
 	switch (soundVars.soundGenerationMode) {
 	case 0:
-		FillBufferSimple(inputVars, fractalVars, soundVars, soundBuffer);
+		FillBufferAM(inputVars, fractalVars, soundVars, soundBuffer);
 		break;
 	case 1: default:
 		FillBufferAdditive(inputVars, fractalVars, soundVars, soundBuffer);
@@ -114,10 +114,11 @@ void FractalSound::PlaySoundFromMixChunk(Mix_Chunk* chunkToPlay)
 #endif
 }
 
-bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]) {
+bool FractalSound::FillBufferAM(InputVars inputVars, FractalVars fractalVars, SoundVars soundVars, float buff[]) {
 	int maxIterations = soundVars.maxSoundIterations;
 	int i = 0, len = fs_;
-	float sinConst = 2 * (float)M_PI * soundVars.freq / fs_;
+	const float sinConst = 2 * (float)M_PI * soundVars.freq / fs_;
+	const float normalization = 1 - soundVars.normalizationLevel;
 	bool partOfTheSet = false;
 
 	auto distances = FractalUtility::MakeVectorWithIterationDistances(inputVars, fractalVars, maxIterations);
@@ -128,7 +129,7 @@ bool FractalSound::FillBufferSimple(InputVars inputVars, FractalVars fractalVars
 
 	for (i = 0; i < distances.size(); i++)
 	{
-		float sin = sinf(sinConst * i) * 0.25;
+		float sin = sinf(sinConst * i) * normalization;
 
 		buff[2 * i] = sin * distances[i]; //left channel
 		buff[2 * i + 1] = buff[2 * i]; //right channel
