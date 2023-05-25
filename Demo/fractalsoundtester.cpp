@@ -132,9 +132,9 @@ void FractalSoundTester::TestMakeVectorWithIterationDistances() {
 	SoundVars sound;
 	fractal.maxIterations = 10;
 	FractalSound* fractalSound = new FractalSound(44100);
+	std::vector<float> expectedDistances;
 
 	ASSERT_NE(fractalSound, NULL);
-
 
 	// Mandelbrot tests
 	fractal.fractalType = 0;
@@ -154,8 +154,18 @@ void FractalSoundTester::TestMakeVectorWithIterationDistances() {
 
 	input.lastClickPos = glm::vec2(0.25, -0.25);
 	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal, 3);
-	float expectedDistances[] = { 0.45069, 0.47005, 0.40997};
-	EXPECT_EQ(distances.size(), 3)
+	expectedDistances = { 0.45069, 0.47005, 0.40997 };
+	EXPECT_EQ(distances.size(), expectedDistances.size())
+	for (int i = 0; i < distances.size(); i++)
+	{
+		EXPECT_NEARBY(distances[i], expectedDistances[i], 0.00001);
+	}
+
+	input.lastClickPos = glm::vec2(1, 0);
+	expectedDistances = { 2, 5 };
+	// when a value is greater than 2, the algorithm returns early
+	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal, expectedDistances.size() + 1); 
+	EXPECT_EQ(distances.size(), expectedDistances.size())
 	for (int i = 0; i < distances.size(); i++)
 	{
 		EXPECT_NEARBY(distances[i], expectedDistances[i], 0.00001);
@@ -207,12 +217,21 @@ void FractalSoundTester::TestMakeVectorWithIterationDistances() {
 
 	input.lastClickPos = glm::vec2(0.25, -1);
 	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal, 3);
-	float expectedDistances2[] = { 0.85009, 0.56662, 0.79851};
-	EXPECT_EQ(distances.size(), 3)
+	expectedDistances = { 0.85009, 0.56662, 0.79851 };
+	EXPECT_EQ(distances.size(), expectedDistances.size())
 	for (int i = 0; i < distances.size(); i++)
 	{
-		EXPECT_NEARBY(distances[i], expectedDistances2[i], 0.00001);
+		EXPECT_NEARBY(distances[i], expectedDistances[i], 0.00001);
 	}
+
+	input.lastClickPos = glm::vec2(0, 1);
+	expectedDistances = { sqrtf(2), 3 };
+	distances = FractalUtility::MakeVectorWithIterationDistances(input, fractal, expectedDistances.size() + 1);
+	EXPECT_EQ(distances.size(), expectedDistances.size())
+		for (int i = 0; i < distances.size(); i++)
+		{
+			EXPECT_NEARBY(distances[i], expectedDistances[i], 0.00001);
+		}
 
 	fractalSound->~FractalSound();
 }
