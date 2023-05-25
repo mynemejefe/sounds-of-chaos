@@ -187,11 +187,11 @@ bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVa
 		}
 	}
 
-	float divisor = pow(i, soundVars.normalizationLevel);
+	float divisor = 1 / pow(i, soundVars.normalizationLevel);
 
 	if (divisor != 1) {
 		for (int j = 0; j < len; j++) {
-			buff[2 * j] = buff[2 * j] / divisor;
+			buff[2 * j] = buff[2 * j] * divisor;
 		}
 	}
 
