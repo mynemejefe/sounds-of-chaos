@@ -35,7 +35,7 @@ void FractalSound::PlaySoundAtPos(InputVars inputVars, FractalVars fractalVars, 
 		case 0:
 			partOfFractal = FillBufferAM(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
 			break;
-		case 1: default:
+		case 1: case 2: default:
 			partOfFractal = FillBufferAdditive(inputVars, fractalVars, soundVars, (float*)chunk->abuf);
 			break;
 		}
@@ -67,7 +67,7 @@ float* FractalSound::CreateSoundBufferFromLastPos(InputVars inputVars, FractalVa
 	case 0:
 		FillBufferAM(inputVars, fractalVars, soundVars, soundBuffer);
 		break;
-	case 1: default:
+	case 1: case 2: default:
 		FillBufferAdditive(inputVars, fractalVars, soundVars, soundBuffer);
 		break;
 	}
