@@ -181,7 +181,7 @@ bool FractalSound::FillBufferAdditive(InputVars inputVars, FractalVars fractalVa
 	for (i = 0; i < waveCount; i++)
 	{
 		for (int j = 0; j < len; j++) {
-			sin = sinf(sinConst * distances[i] * j);
+			sin = sinf(sinConst * distances[i] * j) * 0.25;
 
 			buff[2 * j] += sin;
 		}
