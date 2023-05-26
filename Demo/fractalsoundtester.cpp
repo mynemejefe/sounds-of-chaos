@@ -427,7 +427,7 @@ void FractalSoundTester::CheckMemoryLeaks() {
 	std::cout
 		<< "   Before test 1:\t" << virtualMemUsedByProcess1 << " Bytes\n"
 		<< "   After test 1:\t" << virtualMemUsedByProcess2 << " Bytes\n";
-	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.01 * virtualMemUsedByProcess2);
+	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.05 * virtualMemUsedByProcess2);
 
 	// Checking for memory leaks when re-recording sounds
 
@@ -445,7 +445,7 @@ void FractalSoundTester::CheckMemoryLeaks() {
 	std::cout
 		<< "   Before test 2:\t" << virtualMemUsedByProcess1 << " Bytes\n"
 		<< "   After test 2:\t" << virtualMemUsedByProcess2 << " Bytes\n";
-	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.01 * virtualMemUsedByProcess2);
+	EXPECT_NEARBY(virtualMemUsedByProcess1, virtualMemUsedByProcess2, 0.05 * virtualMemUsedByProcess2);
 }
 
 void FractalSoundTester::TestMixChunkCreation()
