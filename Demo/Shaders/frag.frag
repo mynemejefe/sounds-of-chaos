@@ -63,11 +63,12 @@ void main()
 	}
 
 	//Click visualization
-	float circleX = (last_click.x - c.x);
-	float circleY = (last_click.y - c.y);
-	float radius = 0.02 / zoom_value;
+	if(any(notEqual(last_click, vec2(0,0)))){
+		vec2 clickPos = last_click - c;
+		float radius = 0.02 / zoom_value;
 
-	if(circleX * circleX + circleY * circleY < radius * radius){
-		fs_out_col = fs_out_col*0.1 + vec4(last_click_col, 1);
+		if(clickPos.x * clickPos.x + clickPos.y * clickPos.y < radius * radius){
+			fs_out_col = fs_out_col*0.1 + vec4(last_click_col, 1);
+		}
 	}
 }
