@@ -156,7 +156,7 @@ int main(int argc, char* args[])
 			postprocess << df::NoVao(GL_TRIANGLES, 3); // Rendering a pixel shader
 
 			GL_CHECK;
-			fractalShader.Render(); postprocess.Render(); //only the UI!!
+			fractalShader.Render(); postprocess.Render();
 		}
 	);
 

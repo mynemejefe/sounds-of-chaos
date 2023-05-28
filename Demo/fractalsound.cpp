@@ -1,5 +1,4 @@
 #include "fractalsound.h"
-#include <SDL/SDL_mixer.h>
 #include <thread>
 #include <synchapi.h>
 #include "fractalutility.h"
