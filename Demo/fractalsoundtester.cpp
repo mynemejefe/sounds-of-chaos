@@ -6,6 +6,7 @@
 #include "fractalutility.h"
 #include <string>
 #include <mutex>
+#include <fstream>
 
 #define CHECK_EQ(actual, expected, isAssert)                        \
     if(actual != expected){                                         \
@@ -108,38 +109,107 @@ void FractalSoundTester::RunAllTests() {
 }
 
 void FractalSoundTester::RunPerformanceTests() {
-	const int RepetitionsWithinTest = 100;
+	std::ofstream out;
+	out.open("T:\performance_results.txt", std::ios::app);
+
+	int repetitionsWithinTest;
 	InputVars input;
 	FractalVars fractal;
 	SoundVars sound;
-	input.lastClickPos = glm::vec2(-1, 0);
 	fractal.fractalType = 0;
 	fractal.power = 2;
 	sound.allowCloseNeighbours = true;
 	sound.freq = 440;
 	sound.normalizationLevel = 0;
-	sound.soundGenerationMode = 1;
 	FractalSound* fractalSound = new FractalSound(44100);
 	float* soundBuffer = new float[2 * 441000];
 
+	std::chrono::system_clock::time_point t1, t2;
+
+	// Testing AM soundgen
+	out << "Amplitude modulation soundgen starting from maxSoundIterations = 50 until 1000 with 50 increments\n";
+	input.lastClickPos = glm::vec2(-1, 0);
 	sound.maxSoundIterations = 50;
+	sound.soundGenerationMode = 1;
+	repetitionsWithinTest = 2000;
 	for (int i = 0; i < 20; i++)
 	{
-		auto t1 = std::chrono::system_clock::now();
+		t1 = std::chrono::system_clock::now();
 
-		for (size_t i = 0; i < RepetitionsWithinTest; i++)
+		for (size_t i = 0; i < repetitionsWithinTest; i++)
+		{
+			fractalSound->FillBufferAM(input, fractal, sound, soundBuffer);
+		}
+
+		t2 = std::chrono::system_clock::now();
+		auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
+		auto ms = microseconds.count();
+		auto average = ms / repetitionsWithinTest;
+		std::cout << "Average time of " << repetitionsWithinTest << " repetitions: "
+			<< average << "\tmicroseconds at " << sound.maxSoundIterations << " fractal iterations\n";
+
+		out << average << std::endl;
+
+		sound.maxSoundIterations += 50;
+	}
+
+	// Testing Additive soundgen
+	out << "Additive soundgen starting from maxSoundIterations = 50 until 1000 with 50 increments\n";
+	input.lastClickPos = glm::vec2(-1, 0);
+	sound.maxSoundIterations = 50;
+	sound.soundGenerationMode = 1;
+	repetitionsWithinTest = 500;
+	for (int i = 0; i < 20; i++)
+	{
+		t1 = std::chrono::system_clock::now();
+
+		for (size_t i = 0; i < repetitionsWithinTest; i++)
 		{
 			fractalSound->FillBufferAdditive(input, fractal, sound, soundBuffer);
 		}
 
-		auto t2 = std::chrono::system_clock::now();
+		t2 = std::chrono::system_clock::now();
 		auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
 		auto ms = microseconds.count();
-		std::cout << "Average time of " << RepetitionsWithinTest << " repetitions: "
-			<< ms / RepetitionsWithinTest << "\tmicroseconds at " << sound.maxSoundIterations << " fractal iterations\n";
+		auto average = ms / repetitionsWithinTest;
+		std::cout << "Average time of " << repetitionsWithinTest << " repetitions: "
+			<< average << "\tmicroseconds at " << sound.maxSoundIterations << " fractal iterations\n";
+
+		out << average << std::endl;
 
 		sound.maxSoundIterations += 50;
 	}
+
+	out << "Additive soundgen starting from power = 2 until 10 at maxSoundIterations = " << sound.maxSoundIterations << std::endl;
+	input.lastClickPos = glm::vec2(0, 0);
+	sound.maxSoundIterations = 150;
+	sound.soundGenerationMode = 1;
+	fractal.power = 2;
+	repetitionsWithinTest = 500;
+	while (fractal.power <= 10)
+	{
+		t1 = std::chrono::system_clock::now();
+
+		for (size_t i = 0; i < repetitionsWithinTest; i++)
+		{
+			fractalSound->FillBufferAdditive(input, fractal, sound, soundBuffer);
+		}
+
+		t2 = std::chrono::system_clock::now();
+		auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
+		auto ms = microseconds.count();
+		auto average = ms / repetitionsWithinTest;
+		std::cout << "Average time of " << repetitionsWithinTest << " repetitions: "
+			<< average << "\tmicroseconds at " << fractal.power << " power value\n";
+
+		out << average << std::endl;
+
+		fractal.power = fractal.power+1;
+	}
+
+
+	out.close();
+	fractalSound->~FractalSound();
 }
 
 void FractalSoundTester::TestConstructor()
