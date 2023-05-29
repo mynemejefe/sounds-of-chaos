@@ -107,7 +107,6 @@ void FractalSoundTester::RunAllTests() {
     
 }
 
-void FractalSoundTester::TestConstructor()
 void FractalSoundTester::RunPerformanceTests() {
 	const int RepetitionsWithinTest = 100;
 	InputVars input;
@@ -143,6 +142,7 @@ void FractalSoundTester::RunPerformanceTests() {
 	}
 }
 
+void FractalSoundTester::TestConstructor()
 {
 	std::cout << "\nTesting constructor...\n";
 

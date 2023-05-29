@@ -5,7 +5,7 @@
 #include "globalvariables.h"
 #include <vector>
 
-// #define TESTING
+#define TESTING
 
 struct PianoKey {
 	Mix_Chunk* soundToPlay;
